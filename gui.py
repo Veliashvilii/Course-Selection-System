@@ -12,6 +12,7 @@ ASSETS_PATH_ADMIN = OUTPUT_PATH_ADMIN / Path(
     r"/Users/veliashvili/Desktop/YazLab/assetsAdminPanel/frame0"
 )
 
+# SQL connect item
 global connect
 connect = postgresql.ConnectionToDatabase()
 
@@ -24,21 +25,7 @@ def relative_to_assets_admin(path: str) -> Path:
     return ASSETS_PATH_ADMIN / Path(path)
 
 
-def show_message(self, message):
-    # Show Message Gives Some Information For User
-    message_window = tk.Toplevel(self.root)
-    message_window.title("Bilgi")
-
-    label = tk.Label(message_window, text=message, padx=20, pady=10)
-    label.pack()
-
-    ok_button = tk.Button(message_window, text="Tamam", command=message_window.destroy)
-    ok_button.pack()
-
-
 def login():
-    # main_frame.pack_forget()
-    # admin_frame.pack(fill='both', expand=True)
     username = entryLoginScreenUsername.get()
     password = entryLoginScreenPassword.get()
 
@@ -46,16 +33,22 @@ def login():
         user_type = connect.whoIsLogin(username, password)
         if user_type == "admin":
             main_frame.pack_forget()
-            # show_message("Yönetici Paneline Hoş Geldiniz!") #Patlıyor!!!!!
             admin_frame.pack(fill="both", expand=True)
             connect.disconnectToDataBase()
         elif user_type == "ogretmen":
-            pass
+            pass  # Öğretmen Ekranına Geçişin Kodlanması
         elif user_type == "ogrenci":
-            pass
+            pass  # Öğrenci Ekranına Geçişin Kodlanması
     else:
-        # show_message("Kullanıcı Adı veya Şifre Yanlış!")
-        pass
+        global errorScreen
+        errorScreen = Toplevel()
+        errorScreen.title("Hatalı Giriş")
+        errorScreen.geometry("200x60")
+        Label(errorScreen, text="Kullanıcı Adı veya Şifre Hatalı!").grid(row=0)
+        Button(errorScreen, text="Tamam", command=lambda: errorScreen.withdraw()).grid(
+            row=1
+        )
+        errorScreen.deiconify()
 
 
 window = Tk()

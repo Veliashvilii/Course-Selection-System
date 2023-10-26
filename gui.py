@@ -224,7 +224,7 @@ adminScreenIlgiAlanLabel.place(x=820, y=167, anchor="nw")
 adminScreenGPALabel = Label(
     admin_frame, text="GPA", bg="#F1EEEE", fg="#000000", font=("Inter", 20)
 )
-adminScreenGPALabel.place(x=820, y=244, anchor="nw")
+adminScreenGPALabel.place(x=820, y=240, anchor="nw")
 
 adminScreenSoyadLabel = Label(
     admin_frame, text="Soyad", bg="#F1EEEE", fg="#000000", font=("Inter", 20)
@@ -259,12 +259,12 @@ adminScreenAd2Label.place(x=254, y=242, anchor="nw")
 adminScreenHocaEkleLabel = Label(
     admin_frame, text="Hoca Ekle", bg="#F1EEEE", fg="#000000", font=("Inter", 15)
 )
-adminScreenAdLabel.place(x=31, y=193, anchor="nw")
+adminScreenHocaEkleLabel.place(x=31, y=193, anchor="nw")
 
-adminScreenHocaEkleLabel = Label(
+adminScreenOgrenciEkleLabel = Label(
     admin_frame, text="Öğrenci Ekle", bg="#F1EEEE", fg="#000000", font=("Inter", 15)
 )
-adminScreenAdLabel.place(x=31, y=253, anchor="nw")
+adminScreenOgrenciEkleLabel.place(x=31, y=253, anchor="nw")
 
 canvasAdminScreen.create_rectangle(0.0, 0.0, 1366.0, 138.0, fill="#00A571", outline="")
 
@@ -669,12 +669,12 @@ loginScreenButton17.place(x=1182.0, y=267.0, width=150.0, height=31.0)
 adminScreenKontenjanLabel = Label(
     admin_frame, text="Kontenjan", bg="#F1EEEE", fg="#000000", font=("Inter", 20)
 )
-adminScreenKontenjanLabel.place(x=1014, y=167, anchor="nw")
+adminScreenKontenjanLabel.place(x=1014, y=163, anchor="nw")
 
 adminScreenDersSayisiLabel = Label(
     admin_frame, text="Ders Sayısı", bg="#F1EEEE", fg="#000000", font=("Inter", 20)
 )
-adminScreenDersSayisiLabel.place(x=1004, y=244, anchor="nw")
+adminScreenDersSayisiLabel.place(x=1004, y=239, anchor="nw")
 
 canvasAdminScreen.create_rectangle(
     31.0, 238.0, 1331.999755859375, 239.63537883758545, fill="#878282", outline=""

@@ -1,19 +1,19 @@
 import psycopg2
 from config import config
 
-class ConnectionToDatabase:
 
+class ConnectionToDatabase:
     def __init__(self):
         super().__init__()
 
         try:
             params = config()
-            print('Connecting to the PostgreSQL database...')
+            print("Connecting to the PostgreSQL database...")
             self.connection = psycopg2.connect(**params)
 
             cursor = self.connection.cursor()
-            print('PostgreSQL Database Version:')
-            cursor.execute('SELECT version()')
+            print("PostgreSQL Database Version:")
+            cursor.execute("SELECT version()")
             db_version = cursor.fetchone()
             print(db_version)
             cursor.close()
@@ -23,18 +23,18 @@ class ConnectionToDatabase:
     def connectToDataBase(self):
         try:
             params = config()
-            print('Connecting to the PostgreSQL database...')
+            print("Connecting to the PostgreSQL database...")
             self.connection = psycopg2.connect(**params)
 
             cursor = self.connection.cursor()
-            print('PostgreSQL Database Version:')
-            cursor.execute('SELECT version()')
+            print("PostgreSQL Database Version:")
+            cursor.execute("SELECT version()")
             db_version = cursor.fetchone()
             print(db_version)
             cursor.close()
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
-    
+
     def disconnectToDataBase(self):
         try:
             self.connection.close()
@@ -45,36 +45,67 @@ class ConnectionToDatabase:
     def read(self):
         try:
             cursor = self.connection.cursor()
-            cursor.execute('SELECT * FROM kullanicilar')
+            cursor.execute("SELECT * FROM kullanicilar")
             result = cursor.fetchall()
             for row in result:
                 print(row)
             cursor.close()
-        except(Exception, psycopg2.DatabaseError) as error:
-            print('Veritabanı Okunurken Hata Oluştu: ', error)
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Veritabanı Okunurken Hata Oluştu: ", error)
 
     def insert(self, kullaniciAd, kullaniciSoyad, kullaniciSifre, kullaniciTur):
         try:
             cursor = self.connection.cursor()
-            insert_query = 'INSERT INTO kullanicilar (kullaniciAd, kullaniciSoyad, kullaniciSifre, kullaniciTur) VALUES (%s, %s, %s, %s)'
-            cursor.execute(insert_query, (kullaniciAd, kullaniciSoyad, kullaniciSifre, kullaniciTur))
+            insert_query = "INSERT INTO kullanicilar (Ad, Soyad, Sifre, Tur) VALUES (%s, %s, %s, %s)"
+            cursor.execute(
+                insert_query,
+                (kullaniciAd, kullaniciSoyad, kullaniciSifre, kullaniciTur),
+            )
             self.connection.commit()
             cursor.close()
             print("Kullanıcı Başarıyla Eklendi.")
-        except(Exception, psycopg2.DatabaseError) as error:
-            print('Veritabanına Ekleme Sırasında Hata Oluştu: ', error)
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Veritabanına Ekleme Sırasında Hata Oluştu: ", error)
+
+    def insertTeacher(
+        self, kullaniciAd, kullaniciSoyad, kullaniciSifre, hocaKota, hocaIlgiAlani
+    ):
+        try:
+            cursor = self.connection.cursor()
+
+            # Insert data to kullanicilar
+            insert_query = "INSERT INTO kullanicilar (Ad, Soyad, Sifre, Tur) VALUES (%s, %s, %s, %s) RETURNING SicilNo;"
+            cursor.execute(
+                insert_query, (kullaniciAd, kullaniciSoyad, kullaniciSifre, "ogretmen")
+            )
+            ogretmenSicilNo = cursor.fetchone()[0]
+            cursor.close()
+
+            # Insert data to hocalar
+            cursor = self.connection.cursor()
+            insert_teacher_query = "INSERT INTO hocalar (SicilNo, Ad, Soyad, Kontenjan, ilgialani) VALUES (%s, %s, %s, %s, %s)"
+            cursor.execute(
+                insert_teacher_query,
+                (ogretmenSicilNo, kullaniciAd, kullaniciSoyad, hocaKota, hocaIlgiAlani),
+            )
+            self.connection.commit()
+            cursor.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Veritabanına Öğretmen Ekleme Sırasında Hata Oluştu: ", error)
 
     def delete(self, sicilNo):
         try:
             cursor = self.connection.cursor()
-            delete_query = 'DELETE FROM kullanicilar WHERE sicilNo = %s'
+            delete_query = "DELETE FROM kullanicilar WHERE sicilNo = %s"
             cursor.execute(delete_query, (sicilNo,))
             self.connection.commit()
             cursor.close()
             print(f"Kullanıcı {sicilNo} başarıyla silindi!")
-        except(Exception, psycopg2.DatabaseError) as error:
-            print(f"Kullanıcı {sicilNo} veritabanından silinirken bir hata oluştu!", error)
-    
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(
+                f"Kullanıcı {sicilNo} veritabanından silinirken bir hata oluştu!", error
+            )
+
     def login(self, sicilNo, kullaniciSifre):
         try:
             cursor = self.connection.cursor()
@@ -89,7 +120,7 @@ class ConnectionToDatabase:
             else:
                 print("Login Unsuccsesfully")
                 return False
-            
+
         except (Exception, psycopg2.DatabaseError) as error:
             print("Veritabanı Hatası: ", error)
 
@@ -110,9 +141,11 @@ class ConnectionToDatabase:
             print("Veritabanı Hatası: ", error)
             return None
 
+
 if __name__ == "__main__":
-    #connect()
+    # connect()
     connect = ConnectionToDatabase()
-    connect.delete(2)
+    connect.read()
+    connect.insertTeacher("Ahmet", "Sayar", "a.sayar", 5, "Big Data")
     connect.read()
     connect.disconnectToDataBase()

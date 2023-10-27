@@ -317,6 +317,77 @@ class ConnectionToDatabase:
         else:
             print("Aldığı Ders Sayısı Bloğuna Değer Girilmedi!")
 
+    def updateTeacher(self, sicilNo, yeniAd, yeniSoyad, yeniKontenjan, yeniIlgiAlani):
+        if yeniAd != "":
+            try:
+                cursor = self.connection.cursor()
+                update_query1 = (
+                    f"UPDATE hocalar SET ad = '{yeniAd}' WHERE sicilNo = '{sicilNo}'"
+                )
+                cursor.execute(update_query1)
+                self.connection.commit()
+                cursor.close()
+
+                cursor = self.connection.cursor()
+                update_query2 = f"UPDATE kullanicilar SET ad = '{yeniAd}' WHERE sicilNo = '{sicilNo}'"
+                cursor.execute(update_query2)
+                self.connection.commit()
+                cursor.close()
+
+                print(f"Öğretmenin Yeni Adı: {yeniAd}")
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(f"Öğretmenin Yeni Adı Değiştirilemedi! ", error)
+        else:
+            print("Ad Bloğuna Değer Girilmedi!")
+
+        if yeniSoyad != "":
+            try:
+                cursor = self.connection.cursor()
+                update_query1 = f"UPDATE hocalar SET soyad = '{yeniSoyad}' WHERE sicilNo = '{sicilNo}'"
+                cursor.execute(update_query1)
+                self.connection.commit()
+                cursor.close()
+
+                cursor = self.connection.cursor()
+                update_query2 = f"UPDATE kullanicilar SET soyad = '{yeniSoyad}' WHERE sicilNo = '{sicilNo}'"
+                cursor.execute(update_query2)
+                self.connection.commit()
+                cursor.close()
+
+                print(f"Öğretmenin Yeni Soyadı: {yeniSoyad}")
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(f"Öğretmenin Yeni Soyadı Değiştirilemedi! ", error)
+        else:
+            print("Soyad Bloğuna Değer Girilmedi!")
+
+        if yeniKontenjan != "":
+            try:
+                cursor = self.connection.cursor()
+                update_query1 = f"UPDATE hocalar SET kontenjan = '{yeniKontenjan}' WHERE sicilNo = '{sicilNo}'"
+                cursor.execute(update_query1)
+                self.connection.commit()
+                cursor.close()
+
+                print(f"Öğretmenin Yeni Kontenjanı: {yeniKontenjan}")
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(f"Öğretmenin Yeni Kontenjan Sayısı Değiştirilemedi! ", error)
+        else:
+            print("Kontenjan Bloğuna Değer Girilmedi!")
+
+        if yeniIlgiAlani != "":
+            try:
+                cursor = self.connection.cursor()
+                update_query1 = f"UPDATE hocalar SET ilgialani = '{yeniIlgiAlani}' WHERE sicilNo = '{sicilNo}'"
+                cursor.execute(update_query1)
+                self.connection.commit()
+                cursor.close()
+
+                print(f"Öğretmenin Yeni İlgi Alanı: {yeniIlgiAlani}")
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(f"Öğretmenin Yeni İlgi Alanı Değiştirilemedi!", error)
+        else:
+            print("İlgi Alanı Bloğuna Değer Girilmedi!")
+
     def deleteStudent(self, sicilNo):
         try:
             cursor = self.connection.cursor()

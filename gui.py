@@ -176,21 +176,31 @@ def kullaniciBilgiGuncelle():
         Label(updateScreenTeacher, text=userName.upper()).grid(row=0, columnspan=2)
 
         Label(updateScreenTeacher, text="Ad").grid(row=1, column=0)
-        Entry(updateScreenTeacher).grid(row=1, column=1)
+        updateOgretmenAd = Entry(updateScreenTeacher)
+        updateOgretmenAd.grid(row=1, column=1)
 
         Label(updateScreenTeacher, text="Soyad").grid(row=2, column=0)
-        Entry(updateScreenTeacher).grid(row=2, column=1)
+        updateOgretmenSoyad = Entry(updateScreenTeacher)
+        updateOgretmenSoyad.grid(row=2, column=1)
 
         Label(updateScreenTeacher, text="Kontenjan").grid(row=3, column=0)
-        Entry(updateScreenTeacher).grid(row=3, column=1)
+        updateOgretmenKontenjan = Entry(updateScreenTeacher)
+        updateOgretmenKontenjan.grid(row=3, column=1)
 
         Label(updateScreenTeacher, text="İlgi Alanı").grid(row=4, column=0)
-        Entry(updateScreenTeacher).grid(row=4, column=1)
+        updateOgretmenIlgiAlani = Entry(updateScreenTeacher)
+        updateOgretmenIlgiAlani.grid(row=4, column=1)
 
         Button(
             updateScreenTeacher,
             text="Güncelle",
-            command=lambda: print("Güncelliyicem"),
+            command=lambda: ogretmenBilgiGuncelle(
+                kullaniciNo,
+                updateOgretmenAd.get(),
+                updateOgretmenSoyad.get(),
+                updateOgretmenKontenjan.get(),
+                updateOgretmenIlgiAlani.get(),
+            ),
         ).grid(row=5, columnspan=2)
 
 
@@ -201,6 +211,12 @@ def ogrenciBilgiGuncelle(
     connect.updateStudent(
         sicilNo, yeniAd, yeniSoyad, yeniNotOrtalama, yeniAldigiDersSayi
     )
+    connect.disconnectToDataBase()
+
+
+def ogretmenBilgiGuncelle(sicilNo, yeniAd, yeniSoyad, yeniKontenjan, yeniIlgiAlani):
+    connect.connectToDataBase()
+    connect.updateTeacher(sicilNo, yeniAd, yeniSoyad, yeniKontenjan, yeniIlgiAlani)
     connect.disconnectToDataBase()
 
 

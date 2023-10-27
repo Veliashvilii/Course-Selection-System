@@ -89,7 +89,7 @@ def kullaniciSil():
     elif user_type == "admin":
         global errorScreenDelete
         errorScreenDelete = Toplevel()
-        errorScreenDelete.title("Admin Silinemez!")
+        errorScreenDelete.title("Yönetici Silinemez!")
         errorScreenDelete.geometry("200x60")
         Label(errorScreenDelete, text="Yönetici Silinemez!").grid(row=0)
         Button(
@@ -99,6 +99,18 @@ def kullaniciSil():
         ).grid(row=1)
         errorScreenDelete.deiconify()
 
+    connect.disconnectToDataBase()
+
+
+def ogrenciBilgileriAl():
+    connect.connectToDataBase()
+    connect.readStudent()
+    connect.disconnectToDataBase()
+
+
+def ogretmenBilgileriAl():
+    connect.connectToDataBase()
+    connect.readTeacher()
     connect.disconnectToDataBase()
 
 
@@ -617,31 +629,31 @@ loginScreenButton9 = Button(
 )
 loginScreenButton9.place(x=163.0, y=448.0, width=170.0, height=31.0)
 
-loginScreenButton10Image = PhotoImage(
-    file=relative_to_assets_admin("loginScreenButton10.png")
+adminScreenButton10Image = PhotoImage(
+    file=relative_to_assets_admin("adminScreenButton10.png")
 )
-loginScreenButton10 = Button(
+adminScreenButtonOgrenciBilgiAl = Button(
     admin_frame,
-    image=loginScreenButton10Image,
+    image=adminScreenButton10Image,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: print("button_10 clicked"),
+    command=lambda: ogrenciBilgileriAl(),
     relief="flat",
 )
-loginScreenButton10.place(x=171.0, y=536.0, width=170.0, height=31.0)
+adminScreenButtonOgrenciBilgiAl.place(x=171.0, y=536.0, width=170.0, height=31.0)
 
-loginScreenButton11Image = PhotoImage(
-    file=relative_to_assets_admin("loginScreenButton11.png")
+adminScreenButton11Image = PhotoImage(
+    file=relative_to_assets_admin("adminScreenButton11.png")
 )
-loginScreenButton11 = Button(
+adminScreenButtonHocaBilgileriAl = Button(
     admin_frame,
-    image=loginScreenButton11Image,
+    image=adminScreenButton11Image,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: print("button_11 clicked"),
+    command=lambda: ogretmenBilgileriAl(),
     relief="flat",
 )
-loginScreenButton11.place(x=532.0, y=536.0, width=170.0, height=31.0)
+adminScreenButtonHocaBilgileriAl.place(x=532.0, y=536.0, width=170.0, height=31.0)
 
 loginScreenButton12Image = PhotoImage(
     file=relative_to_assets_admin("loginScreenButton12.png")

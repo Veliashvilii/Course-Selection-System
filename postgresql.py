@@ -1,5 +1,7 @@
 import psycopg2
 from config import config
+import tkinter as tk
+from tkinter import ttk, Toplevel
 
 
 class ConnectionToDatabase:
@@ -52,6 +54,90 @@ class ConnectionToDatabase:
             cursor.close()
         except (Exception, psycopg2.DatabaseError) as error:
             print("Veritabanı Okunurken Hata Oluştu: ", error)
+
+    def readTeacher(self):
+        try:
+            global infoScreenStudent
+            infoScreenStudent = Toplevel()
+            infoScreenStudent.title("Öğretmen Bilgileri")
+            infoScreenStudent.geometry("500x200")
+
+            cursor = self.connection.cursor()
+            cursor.execute("SELECT * FROM hocalar")
+
+            tree = ttk.Treeview(infoScreenStudent)
+            tree["show"] = "headings"
+
+            style = ttk.Style(infoScreenStudent)
+            style.theme_use("clam")
+
+            tree["columns"] = ("sicilNo", "ad", "soyad", "kontenjan", "ilgialani")
+
+            tree.column("sicilNo", width=100, minwidth=100, anchor=tk.CENTER)
+            tree.column("ad", width=100, minwidth=100, anchor=tk.CENTER)
+            tree.column("soyad", width=100, minwidth=100, anchor=tk.CENTER)
+            tree.column("kontenjan", width=100, minwidth=100, anchor=tk.CENTER)
+            tree.column("ilgialani", width=100, minwidth=100, anchor=tk.CENTER)
+
+            tree.heading("sicilNo", text="Okul Numarası", anchor=tk.CENTER)
+            tree.heading("ad", text="Öğrenci Adı", anchor=tk.CENTER)
+            tree.heading("soyad", text="Öğrenci Soyadı", anchor=tk.CENTER)
+            tree.heading("kontenjan", text="Öğrenci Kontenjanı", anchor=tk.CENTER)
+            tree.heading("ilgialani", text="İlgi Alanları", anchor=tk.CENTER)
+
+            i = 0
+            for row in cursor:
+                tree.insert(
+                    "", i, text="", values=(row[0], row[1], row[2], row[3], row[4])
+                )
+                i += 1
+
+            tree.pack()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Hocalar Tablosu Okunurken Hata Oluştu: ", error)
+
+    def readStudent(self):
+        try:
+            global infoScreenStudent
+            infoScreenStudent = Toplevel()
+            infoScreenStudent.title("Öğrenci Bilgileri")
+            infoScreenStudent.geometry("500x200")
+
+            cursor = self.connection.cursor()
+            cursor.execute("SELECT * FROM ogrenciler")
+
+            tree = ttk.Treeview(infoScreenStudent)
+            tree["show"] = "headings"
+
+            style = ttk.Style(infoScreenStudent)
+            style.theme_use("clam")
+
+            tree["columns"] = ("sicilNo", "ad", "soyad", "gpa", "aldigiderssayisi")
+
+            tree.column("sicilNo", width=100, minwidth=100, anchor=tk.CENTER)
+            tree.column("ad", width=100, minwidth=100, anchor=tk.CENTER)
+            tree.column("soyad", width=100, minwidth=100, anchor=tk.CENTER)
+            tree.column("gpa", width=100, minwidth=100, anchor=tk.CENTER)
+            tree.column("aldigiderssayisi", width=100, minwidth=100, anchor=tk.CENTER)
+
+            tree.heading("sicilNo", text="Okul Numarası", anchor=tk.CENTER)
+            tree.heading("ad", text="Öğrenci Adı", anchor=tk.CENTER)
+            tree.heading("soyad", text="Öğrenci Soyadı", anchor=tk.CENTER)
+            tree.heading("gpa", text="Öğrenci Not Ortalaması", anchor=tk.CENTER)
+            tree.heading(
+                "aldigiderssayisi", text="Alınan Ders Sayısı", anchor=tk.CENTER
+            )
+
+            i = 0
+            for row in cursor:
+                tree.insert(
+                    "", i, text="", values=(row[0], row[1], row[2], row[3], row[4])
+                )
+                i += 1
+
+            tree.pack()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Öğrenci Bilgileri Okunurken Hata Oluştu: ", error)
 
     def insert(self, kullaniciAd, kullaniciSoyad, kullaniciSifre, kullaniciTur):
         try:

@@ -30,7 +30,7 @@ def login():
     password = entryLoginScreenPassword.get()
 
     if connect.login(username, password):
-        user_type = connect.whoIsLogin(username, password)
+        user_type = connect.whoIsLogin(username)
         if user_type == "admin":
             main_frame.pack_forget()
             admin_frame.pack(fill="both", expand=True)
@@ -49,6 +49,57 @@ def login():
             row=1
         )
         errorScreen.deiconify()
+
+
+def hocaEkle():
+    hocaAd = entryAdminScreenHocaAd.get()
+    hocaSoyad = entryAdminScreenHocaSoyad.get()
+    hocaSifre = entryAdminScreenhocaSifre.get()
+    hocaIlgiAlani = entryAdminScreenHocaIlgi.get()
+    hocaKota = entryAdminScreenHocaKota.get()
+
+    connect.connectToDataBase()
+    connect.insertTeacher(hocaAd, hocaSoyad, hocaSifre, hocaKota, hocaIlgiAlani)
+    connect.disconnectToDataBase()
+
+
+def ogrenciEke():
+    ogrenciAd = entryAdminScreenOgrenciAd.get()
+    ogrenciSoyad = entryAdminScreenOgrenciSoyad.get()
+    ogrenciSifre = entryAdminScreenOgrenciSifre.get()
+    ogrenciNot = entryAdminScreenOgrenciNot.get()
+    ogrenciDersSayi = entryAdminScreenOgrenciDersSayi.get()
+
+    connect.connectToDataBase()
+    connect.insertStudents(
+        ogrenciAd, ogrenciSoyad, ogrenciSifre, ogrenciNot, ogrenciDersSayi
+    )
+    connect.disconnectToDataBase()
+
+
+def kullaniciSil():
+    kullaniciNo = entryAdminScreenSilme.get()
+    connect.connectToDataBase()
+    user_type = connect.whoIsLogin(kullaniciNo)
+
+    if user_type == "ogretmen":
+        connect.deleteTeacher(kullaniciNo)
+    elif user_type == "ogrenci":
+        connect.deleteStudent(kullaniciNo)
+    elif user_type == "admin":
+        global errorScreenDelete
+        errorScreenDelete = Toplevel()
+        errorScreenDelete.title("Admin Silinemez!")
+        errorScreenDelete.geometry("200x60")
+        Label(errorScreenDelete, text="Yönetici Silinemez!").grid(row=0)
+        Button(
+            errorScreenDelete,
+            text="Tamam",
+            command=lambda: errorScreenDelete.withdraw(),
+        ).grid(row=1)
+        errorScreenDelete.deiconify()
+
+    connect.disconnectToDataBase()
 
 
 window = Tk()
@@ -286,10 +337,14 @@ entryAdminScreen_image_1 = PhotoImage(
 entryAdminScreen_bg_1 = canvasAdminScreen.create_image(
     268.0, 208.5, image=entryAdminScreen_image_1
 )
-entryAdminScreen1 = Entry(
-    admin_frame, bd=0, bg="#D9D9D9", fg="#000716", highlightthickness=0
+entryAdminScreenHocaAd = Entry(
+    admin_frame,
+    bd=0,
+    bg="#D9D9D9",
+    fg="#000716",
+    highlightthickness=0,
 )
-entryAdminScreen1.place(x=193.0, y=193.0, width=150.0, height=29.0)
+entryAdminScreenHocaAd.place(x=193.0, y=193.0, width=150.0, height=29.0)
 
 entryAdminScreen_image_2 = PhotoImage(
     file=relative_to_assets_admin("entryAdminScreen2.png")
@@ -297,10 +352,10 @@ entryAdminScreen_image_2 = PhotoImage(
 entryAdminScreen_bg_2 = canvasAdminScreen.create_image(
     268.0, 281.5, image=entryAdminScreen_image_2
 )
-entryAdminScreen2 = Entry(
+entryAdminScreenOgrenciAd = Entry(
     admin_frame, bd=0, bg="#D9D9D9", fg="#000716", highlightthickness=0
 )
-entryAdminScreen2.place(x=193.0, y=266.0, width=150.0, height=29.0)
+entryAdminScreenOgrenciAd.place(x=193.0, y=266.0, width=150.0, height=29.0)
 
 entryAdminScreen_image_3 = PhotoImage(
     file=relative_to_assets_admin("entryAdminScreen3.png")
@@ -308,10 +363,10 @@ entryAdminScreen_image_3 = PhotoImage(
 entryAdminScreen_bg_3 = canvasAdminScreen.create_image(
     294.0, 334.5, image=entryAdminScreen_image_3
 )
-entryAdminScreen3 = Entry(
+entryAdminScreenDersSec = Entry(
     admin_frame, bd=0, bg="#D9D9D9", fg="#000716", highlightthickness=0
 )
-entryAdminScreen3.place(x=194.0, y=319.0, width=200.0, height=29.0)
+entryAdminScreenDersSec.place(x=194.0, y=319.0, width=200.0, height=29.0)
 
 entryAdminScreen_image_4 = PhotoImage(
     file=relative_to_assets_admin("entryAdminScreen4.png")
@@ -319,10 +374,10 @@ entryAdminScreen_image_4 = PhotoImage(
 entryAdminScreen_bg_4 = canvasAdminScreen.create_image(
     294.0, 390.5, image=entryAdminScreen_image_4
 )
-entryAdminScreen4 = Entry(
+entryAdminScreenMesajKarakter = Entry(
     admin_frame, bd=0, bg="#D9D9D9", fg="#000716", highlightthickness=0
 )
-entryAdminScreen4.place(x=194.0, y=375.0, width=200.0, height=29.0)
+entryAdminScreenMesajKarakter.place(x=194.0, y=375.0, width=200.0, height=29.0)
 
 entryAdminScreen_image_5 = PhotoImage(
     file=relative_to_assets_admin("entryAdminScreen5.png")
@@ -330,10 +385,10 @@ entryAdminScreen_image_5 = PhotoImage(
 entryAdminScreen_bg_5 = canvasAdminScreen.create_image(
     993.0, 334.5, image=entryAdminScreen_image_5
 )
-entryAdminScreen5 = Entry(
+entryAdminScreenKacHoca = Entry(
     admin_frame, bd=0, bg="#D9D9D9", fg="#000716", highlightthickness=0
 )
-entryAdminScreen5.place(x=893.0, y=319.0, width=200.0, height=29.0)
+entryAdminScreenKacHoca.place(x=893.0, y=319.0, width=200.0, height=29.0)
 
 entryAdminScreen_image_6 = PhotoImage(
     file=relative_to_assets_admin("entryAdminScreen6.png")
@@ -341,10 +396,10 @@ entryAdminScreen_image_6 = PhotoImage(
 entryAdminScreen_bg_6 = canvasAdminScreen.create_image(
     993.0, 390.5, image=entryAdminScreen_image_6
 )
-entryAdminScreen6 = Entry(
+entryAdminScreenSilme = Entry(
     admin_frame, bd=0, bg="#D9D9D9", fg="#000716", highlightthickness=0
 )
-entryAdminScreen6.place(x=893.0, y=375.0, width=200.0, height=29.0)
+entryAdminScreenSilme.place(x=893.0, y=375.0, width=200.0, height=29.0)
 
 entryAdminScreen_image_7 = PhotoImage(
     file=relative_to_assets_admin("entryAdminScreen7.png")
@@ -352,10 +407,10 @@ entryAdminScreen_image_7 = PhotoImage(
 entryAdminScreen_bg_7 = canvasAdminScreen.create_image(
     996.0, 551.5, image=entryAdminScreen_image_7
 )
-entryAdminScreen7 = Entry(
+entryAdminScreenGuncelle = Entry(
     admin_frame, bd=0, bg="#D9D9D9", fg="#000716", highlightthickness=0
 )
-entryAdminScreen7.place(x=896.0, y=536.0, width=200.0, height=29.0)
+entryAdminScreenGuncelle.place(x=896.0, y=536.0, width=200.0, height=29.0)
 
 entryAdminScreen_image_8 = PhotoImage(
     file=relative_to_assets_admin("entryAdminScreen8.png")
@@ -363,10 +418,10 @@ entryAdminScreen_image_8 = PhotoImage(
 entryAdminScreen_bg_8 = canvasAdminScreen.create_image(
     469.0, 210.5, image=entryAdminScreen_image_8
 )
-entryAdminScreen8 = Entry(
+entryAdminScreenHocaSoyad = Entry(
     admin_frame, bd=0, bg="#D9D9D9", fg="#000716", highlightthickness=0
 )
-entryAdminScreen8.place(x=394.0, y=195.0, width=150.0, height=29.0)
+entryAdminScreenHocaSoyad.place(x=394.0, y=195.0, width=150.0, height=29.0)
 
 entryAdminScreen_image_9 = PhotoImage(
     file=relative_to_assets_admin("entryAdminScreen9.png")
@@ -374,10 +429,10 @@ entryAdminScreen_image_9 = PhotoImage(
 entryAdminScreen_bg_9 = canvasAdminScreen.create_image(
     469.0, 283.5, image=entryAdminScreen_image_9
 )
-entryAdminScreen9 = Entry(
+entryAdminScreenOgrenciSoyad = Entry(
     admin_frame, bd=0, bg="#D9D9D9", fg="#000716", highlightthickness=0
 )
-entryAdminScreen9.place(x=394.0, y=268.0, width=150.0, height=29.0)
+entryAdminScreenOgrenciSoyad.place(x=394.0, y=268.0, width=150.0, height=29.0)
 
 entryAdminScreen_image_10 = PhotoImage(
     file=relative_to_assets_admin("entryAdminScreen10.png")
@@ -385,10 +440,10 @@ entryAdminScreen_image_10 = PhotoImage(
 entryAdminScreen_bg_10 = canvasAdminScreen.create_image(
     667.0, 210.5, image=entryAdminScreen_image_10
 )
-entryAdminScreen10 = Entry(
+entryAdminScreenhocaSifre = Entry(
     admin_frame, bd=0, bg="#D9D9D9", fg="#000716", highlightthickness=0
 )
-entryAdminScreen10.place(x=592.0, y=195.0, width=150.0, height=29.0)
+entryAdminScreenhocaSifre.place(x=592.0, y=195.0, width=150.0, height=29.0)
 
 entryAdminScreen_image_11 = PhotoImage(
     file=relative_to_assets_admin("entryAdminScreen11.png")
@@ -396,10 +451,10 @@ entryAdminScreen_image_11 = PhotoImage(
 entryAdminScreen_bg_11 = canvasAdminScreen.create_image(
     667.0, 281.5, image=entryAdminScreen_image_11
 )
-entryAdminScreen11 = Entry(
+entryAdminScreenOgrenciSifre = Entry(
     admin_frame, bd=0, bg="#D9D9D9", fg="#000716", highlightthickness=0
 )
-entryAdminScreen11.place(x=592.0, y=266.0, width=150.0, height=29.0)
+entryAdminScreenOgrenciSifre.place(x=592.0, y=266.0, width=150.0, height=29.0)
 
 entryAdminScreen_image_12 = PhotoImage(
     file=relative_to_assets_admin("entryAdminScreen12.png")
@@ -407,10 +462,10 @@ entryAdminScreen_image_12 = PhotoImage(
 entryAdminScreen_bg_12 = canvasAdminScreen.create_image(
     865.0, 208.5, image=entryAdminScreen_image_12
 )
-entryAdminScreen12 = Entry(
+entryAdminScreenHocaIlgi = Entry(
     admin_frame, bd=0, bg="#D9D9D9", fg="#000716", highlightthickness=0
 )
-entryAdminScreen12.place(x=790.0, y=193.0, width=150.0, height=29.0)
+entryAdminScreenHocaIlgi.place(x=790.0, y=193.0, width=150.0, height=29.0)
 
 entryAdminScreen_image_13 = PhotoImage(
     file=relative_to_assets_admin("entryAdminScreen13.png")
@@ -418,10 +473,10 @@ entryAdminScreen_image_13 = PhotoImage(
 entryAdminScreen_bg_13 = canvasAdminScreen.create_image(
     865.0, 281.5, image=entryAdminScreen_image_13
 )
-entryAdminScreen13 = Entry(
+entryAdminScreenOgrenciNot = Entry(
     admin_frame, bd=0, bg="#D9D9D9", fg="#000716", highlightthickness=0
 )
-entryAdminScreen13.place(x=790.0, y=266.0, width=150.0, height=29.0)
+entryAdminScreenOgrenciNot.place(x=790.0, y=266.0, width=150.0, height=29.0)
 
 entryAdminScreen_image_14 = PhotoImage(
     file=relative_to_assets_admin("entryAdminScreen14.png")
@@ -429,10 +484,10 @@ entryAdminScreen_image_14 = PhotoImage(
 entryAdminScreen_bg_14 = canvasAdminScreen.create_image(
     1063.0, 208.5, image=entryAdminScreen_image_14
 )
-entryAdminScreen14 = Entry(
+entryAdminScreenHocaKota = Entry(
     admin_frame, bd=0, bg="#D9D9D9", fg="#000716", highlightthickness=0
 )
-entryAdminScreen14.place(x=988.0, y=193.0, width=150.0, height=29.0)
+entryAdminScreenHocaKota.place(x=988.0, y=193.0, width=150.0, height=29.0)
 
 entryAdminScreen_image_15 = PhotoImage(
     file=relative_to_assets_admin("entryAdminScreen15.png")
@@ -440,23 +495,23 @@ entryAdminScreen_image_15 = PhotoImage(
 entryAdminScreen_bg_15 = canvasAdminScreen.create_image(
     1063.0, 282.5, image=entryAdminScreen_image_15
 )
-entryAdminScreen15 = Entry(
+entryAdminScreenOgrenciDersSayi = Entry(
     admin_frame, bd=0, bg="#D9D9D9", fg="#000716", highlightthickness=0
 )
-entryAdminScreen15.place(x=988.0, y=267.0, width=150.0, height=29.0)
+entryAdminScreenOgrenciDersSayi.place(x=988.0, y=267.0, width=150.0, height=29.0)
 
-loginScreenButton1Image = PhotoImage(
-    file=relative_to_assets_admin("loginScreenButton1.png")
+AdminScreenButton1Image = PhotoImage(
+    file=relative_to_assets_admin("adminScreenButton1.png")
 )
-loginScreenButton1 = Button(
+AdminScreenButton1 = Button(
     admin_frame,
-    image=loginScreenButton1Image,
+    image=AdminScreenButton1Image,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: print("button_1 clicked"),
+    command=lambda: hocaEkle(),
     relief="flat",
 )
-loginScreenButton1.place(x=1182.0, y=193.0, width=150.0, height=31.0)
+AdminScreenButton1.place(x=1182.0, y=193.0, width=150.0, height=31.0)
 
 loginScreenButton2Image = PhotoImage(
     file=relative_to_assets_admin("loginScreenButton2.png")
@@ -471,18 +526,18 @@ loginScreenButton2 = Button(
 )
 loginScreenButton2.place(x=1134.0, y=323.0, width=200.0, height=31.0)
 
-loginScreenButton3Image = PhotoImage(
-    file=relative_to_assets_admin("loginScreenButton3.png")
+adminScreenButton3Image = PhotoImage(
+    file=relative_to_assets_admin("adminScreenButton3.png")
 )
-loginScreenButton3 = Button(
+adminScreenButtonKullaniciSil = Button(
     admin_frame,
-    image=loginScreenButton3Image,
+    image=adminScreenButton3Image,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: print("button_3 clicked"),
+    command=lambda: kullaniciSil(),
     relief="flat",
 )
-loginScreenButton3.place(x=1132.0, y=375.0, width=200.0, height=31.0)
+adminScreenButtonKullaniciSil.place(x=1132.0, y=375.0, width=200.0, height=31.0)
 
 loginScreenButton4Image = PhotoImage(
     file=relative_to_assets_admin("loginScreenButton4.png")
@@ -653,18 +708,18 @@ loginScreenButton16 = Button(
 )
 loginScreenButton16.place(x=370.0, y=448.0, width=170.0, height=31.0)
 
-loginScreenButton17Image = PhotoImage(
-    file=relative_to_assets_admin("loginScreenButton17.png")
+adminScreenButton17Image = PhotoImage(
+    file=relative_to_assets_admin("adminScreenButton17.png")
 )
-loginScreenButton17 = Button(
+adminScreenButtonOgrenciEkle = Button(
     admin_frame,
-    image=loginScreenButton17Image,
+    image=adminScreenButton17Image,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: print("button_17 clicked"),
+    command=lambda: ogrenciEke(),
     relief="flat",
 )
-loginScreenButton17.place(x=1182.0, y=267.0, width=150.0, height=31.0)
+adminScreenButtonOgrenciEkle.place(x=1182.0, y=267.0, width=150.0, height=31.0)
 
 adminScreenKontenjanLabel = Label(
     admin_frame, text="Kontenjan", bg="#F1EEEE", fg="#000000", font=("Inter", 20)

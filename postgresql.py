@@ -71,6 +71,7 @@ class ConnectionToDatabase:
         self, kullaniciAd, kullaniciSoyad, kullaniciSifre, hocaKota, hocaIlgiAlani
     ):
         try:
+            # self.connection.connectToDataBase()
             cursor = self.connection.cursor()
 
             # Insert data to kullanicilar
@@ -90,6 +91,7 @@ class ConnectionToDatabase:
             )
             self.connection.commit()
             cursor.close()
+            # self.connection.disconnectToDataBase()
         except (Exception, psycopg2.DatabaseError) as error:
             print("Veritabanına Öğretmen Ekleme Sırasında Hata Oluştu: ", error)
 
@@ -180,7 +182,7 @@ class ConnectionToDatabase:
     def login(self, sicilNo, kullaniciSifre):
         try:
             cursor = self.connection.cursor()
-            query = "SELECT sicilNo FROM kullanicilar WHERE sicilNo = %s AND kullaniciSifre = %s"
+            query = "SELECT sicilNo FROM kullanicilar WHERE sicilNo = %s AND sifre = %s"
             cursor.execute(query, (sicilNo, kullaniciSifre))
             result = cursor.fetchone()
             cursor.close()
@@ -195,11 +197,11 @@ class ConnectionToDatabase:
         except (Exception, psycopg2.DatabaseError) as error:
             print("Veritabanı Hatası: ", error)
 
-    def whoIsLogin(self, sicilNo, kullaniciSifre):
+    def whoIsLogin(self, sicilNo):
         try:
             cursor = self.connection.cursor()
-            query = "SELECT kullaniciTur FROM kullanicilar WHERE sicilNo = %s AND kullaniciSifre = %s"
-            cursor.execute(query, (sicilNo, kullaniciSifre))
+            query = "SELECT tur FROM kullanicilar WHERE sicilNo = %s"
+            cursor.execute(query, (sicilNo,))
             result = cursor.fetchone()
 
             if result:
@@ -217,8 +219,7 @@ if __name__ == "__main__":
     # connect()
     connect = ConnectionToDatabase()
     connect.read()
-    #    connect.insertTeacher("Ahmet", "Sayar", "a.sayar", 5, "Big Data")
-    # connect.insertStudents("metehan", "belli", "artvin", 3.04, 2)
-    connect.deleteStudent(10)
+    connect.insertTeacher("Furkan", "Göz", "furkan.goz", 3, "Yapay Zeka")
+    connect.insertStudents("furkan", "karlıdağ", "furkan123", 3.31, 2)
     connect.read()
     connect.disconnectToDataBase()

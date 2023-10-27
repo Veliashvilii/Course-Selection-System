@@ -247,7 +247,7 @@ class ConnectionToDatabase:
             )
 
     def updateStudent(
-        self, sicilNo, yeniAd, yeniSoyad, yeniNotOrtalama, yeniAldigiDersSayi
+        self, sicilNo, yeniAd, yeniSoyad, yeniSifre, yeniNotOrtalama, yeniAldigiDersSayi
     ):
         if yeniAd != "":
             try:
@@ -290,6 +290,23 @@ class ConnectionToDatabase:
                 print(f"Kullanıcının Yeni Soyadı Değiştirilemedi! ", error)
         else:
             print("Soyad Bloğuna Değer Girilmedi!")
+
+        if yeniSifre != "":
+            try:
+                cursor = self.connection.cursor()
+                update_query2 = f"UPDATE kullanicilar SET sifre= '{yeniSifre}' WHERE sicilNo = '{sicilNo}'"
+                cursor.execute(update_query2)
+                self.connection.commit()
+                cursor.close()
+
+                print(f"Öğrencinin Yeni Şifresi: {yeniSifre}")
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(
+                    "Öğrencinin Şifresi Değiştirilirken Hata ile Karşılaşıldı: ", error
+                )
+        else:
+            print("Şifre Bloğuna Değer Girilmedi!")
+
         if yeniNotOrtalama != "":
             try:
                 cursor = self.connection.cursor()
@@ -317,7 +334,9 @@ class ConnectionToDatabase:
         else:
             print("Aldığı Ders Sayısı Bloğuna Değer Girilmedi!")
 
-    def updateTeacher(self, sicilNo, yeniAd, yeniSoyad, yeniKontenjan, yeniIlgiAlani):
+    def updateTeacher(
+        self, sicilNo, yeniAd, yeniSoyad, yeniSifre, yeniKontenjan, yeniIlgiAlani
+    ):
         if yeniAd != "":
             try:
                 cursor = self.connection.cursor()
@@ -359,6 +378,22 @@ class ConnectionToDatabase:
                 print(f"Öğretmenin Yeni Soyadı Değiştirilemedi! ", error)
         else:
             print("Soyad Bloğuna Değer Girilmedi!")
+
+        if yeniSifre != "":
+            try:
+                cursor = self.connection.cursor()
+                update_query2 = f"UPDATE kullanicilar SET sifre= '{yeniSifre}' WHERE sicilNo = '{sicilNo}'"
+                cursor.execute(update_query2)
+                self.connection.commit()
+                cursor.close()
+
+                print(f"Öğretmenin Yeni Şifresi: {yeniSifre}")
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(
+                    "Öğretmenin Şifresi Değiştirilirken Hata ile Karşılaşıldı: ", error
+                )
+        else:
+            print("Şifre Bloğuna Değer Girilmedi!")
 
         if yeniKontenjan != "":
             try:

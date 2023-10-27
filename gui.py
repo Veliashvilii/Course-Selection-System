@@ -136,7 +136,7 @@ def kullaniciBilgiGuncelle():
         global updateScreenStudent
         updateScreenStudent = Toplevel()
         updateScreenStudent.title("Öğrenci Bilgilerini Güncelleme")
-        updateScreenStudent.geometry("310x170")
+        updateScreenStudent.geometry("310x195")
 
         Label(updateScreenStudent, text=userName.upper()).grid(row=0, columnspan=2)
 
@@ -148,13 +148,17 @@ def kullaniciBilgiGuncelle():
         updateOgrenciSoyad = Entry(updateScreenStudent)
         updateOgrenciSoyad.grid(row=2, column=1)
 
-        Label(updateScreenStudent, text="Not Ortalaması").grid(row=3, column=0)
-        updateOgrenciNotOrtalama = Entry(updateScreenStudent)
-        updateOgrenciNotOrtalama.grid(row=3, column=1)
+        Label(updateScreenStudent, text="Şifre").grid(row=3, column=0)
+        updateOgrenciSifre = Entry(updateScreenStudent)
+        updateOgrenciSifre.grid(row=3, column=1)
 
-        Label(updateScreenStudent, text="Aldığı Ders Sayısı").grid(row=4, column=0)
+        Label(updateScreenStudent, text="Not Ortalaması").grid(row=4, column=0)
+        updateOgrenciNotOrtalama = Entry(updateScreenStudent)
+        updateOgrenciNotOrtalama.grid(row=4, column=1)
+
+        Label(updateScreenStudent, text="Aldığı Ders Sayısı").grid(row=5, column=0)
         updateOgrenciAlinanDers = Entry(updateScreenStudent)
-        updateOgrenciAlinanDers.grid(row=4, column=1)
+        updateOgrenciAlinanDers.grid(row=5, column=1)
 
         Button(
             updateScreenStudent,
@@ -163,15 +167,16 @@ def kullaniciBilgiGuncelle():
                 kullaniciNo,
                 updateOgrenciAd.get(),
                 updateOgrenciSoyad.get(),
+                updateOgrenciSifre.get(),
                 updateOgrenciNotOrtalama.get(),
                 updateOgrenciAlinanDers.get(),
             ),
-        ).grid(row=5, columnspan=2)
+        ).grid(row=6, columnspan=2)
     elif user_type == "ogretmen":
         global updateScreenTeacher
         updateScreenTeacher = Toplevel()
         updateScreenTeacher.title("Öğretmen Bilgilerini Güncelleme")
-        updateScreenTeacher.geometry("310x170")
+        updateScreenTeacher.geometry("310x195")
 
         Label(updateScreenTeacher, text=userName.upper()).grid(row=0, columnspan=2)
 
@@ -183,13 +188,17 @@ def kullaniciBilgiGuncelle():
         updateOgretmenSoyad = Entry(updateScreenTeacher)
         updateOgretmenSoyad.grid(row=2, column=1)
 
-        Label(updateScreenTeacher, text="Kontenjan").grid(row=3, column=0)
-        updateOgretmenKontenjan = Entry(updateScreenTeacher)
-        updateOgretmenKontenjan.grid(row=3, column=1)
+        Label(updateScreenTeacher, text="Şifre").grid(row=3, column=0)
+        updateOgretmenSifre = Entry(updateScreenTeacher)
+        updateOgretmenSifre.grid(row=3, column=1)
 
-        Label(updateScreenTeacher, text="İlgi Alanı").grid(row=4, column=0)
+        Label(updateScreenTeacher, text="Kontenjan").grid(row=4, column=0)
+        updateOgretmenKontenjan = Entry(updateScreenTeacher)
+        updateOgretmenKontenjan.grid(row=4, column=1)
+
+        Label(updateScreenTeacher, text="İlgi Alanı").grid(row=5, column=0)
         updateOgretmenIlgiAlani = Entry(updateScreenTeacher)
-        updateOgretmenIlgiAlani.grid(row=4, column=1)
+        updateOgretmenIlgiAlani.grid(row=5, column=1)
 
         Button(
             updateScreenTeacher,
@@ -198,25 +207,30 @@ def kullaniciBilgiGuncelle():
                 kullaniciNo,
                 updateOgretmenAd.get(),
                 updateOgretmenSoyad.get(),
+                updateOgretmenSifre.get(),
                 updateOgretmenKontenjan.get(),
                 updateOgretmenIlgiAlani.get(),
             ),
-        ).grid(row=5, columnspan=2)
+        ).grid(row=6, columnspan=2)
 
 
 def ogrenciBilgiGuncelle(
-    sicilNo, yeniAd, yeniSoyad, yeniNotOrtalama, yeniAldigiDersSayi
+    sicilNo, yeniAd, yeniSoyad, yeniSifre, yeniNotOrtalama, yeniAldigiDersSayi
 ):
     connect.connectToDataBase()
     connect.updateStudent(
-        sicilNo, yeniAd, yeniSoyad, yeniNotOrtalama, yeniAldigiDersSayi
+        sicilNo, yeniAd, yeniSoyad, yeniSifre, yeniNotOrtalama, yeniAldigiDersSayi
     )
     connect.disconnectToDataBase()
 
 
-def ogretmenBilgiGuncelle(sicilNo, yeniAd, yeniSoyad, yeniKontenjan, yeniIlgiAlani):
+def ogretmenBilgiGuncelle(
+    sicilNo, yeniAd, yeniSoyad, yeniSifre, yeniKontenjan, yeniIlgiAlani
+):
     connect.connectToDataBase()
-    connect.updateTeacher(sicilNo, yeniAd, yeniSoyad, yeniKontenjan, yeniIlgiAlani)
+    connect.updateTeacher(
+        sicilNo, yeniAd, yeniSoyad, yeniSifre, yeniKontenjan, yeniIlgiAlani
+    )
     connect.disconnectToDataBase()
 
 

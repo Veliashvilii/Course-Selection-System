@@ -246,6 +246,77 @@ class ConnectionToDatabase:
                 error,
             )
 
+    def updateStudent(
+        self, sicilNo, yeniAd, yeniSoyad, yeniNotOrtalama, yeniAldigiDersSayi
+    ):
+        if yeniAd != "":
+            try:
+                cursor = self.connection.cursor()
+                update_query1 = (
+                    f"UPDATE ogrenciler SET ad = '{yeniAd}' WHERE sicilNo = '{sicilNo}'"
+                )
+                cursor.execute(update_query1)
+                self.connection.commit()
+                cursor.close()
+
+                cursor = self.connection.cursor()
+                update_query2 = f"UPDATE kullanicilar SET ad = '{yeniAd}' WHERE sicilNo = '{sicilNo}'"
+                cursor.execute(update_query2)
+                self.connection.commit()
+                cursor.close()
+
+                print(f"Kullanıcının Yeni Adı: {yeniAd}")
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(f"Kullanıcının Yeni Adı Değiştirilemedi! ", error)
+        else:
+            print("Ad Bloğuna Değer Girilmedi!")
+
+        if yeniSoyad != "":
+            try:
+                cursor = self.connection.cursor()
+                update_query1 = f"UPDATE ogrenciler SET soyad = '{yeniSoyad}' WHERE sicilNo = '{sicilNo}'"
+                cursor.execute(update_query1)
+                self.connection.commit()
+                cursor.close()
+
+                cursor = self.connection.cursor()
+                update_query2 = f"UPDATE kullanicilar SET soyad = '{yeniSoyad}' WHERE sicilNo = '{sicilNo}'"
+                cursor.execute(update_query2)
+                self.connection.commit()
+                cursor.close()
+
+                print(f"Kullanıcının Yeni Soyadı: {yeniSoyad}")
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(f"Kullanıcının Yeni Soyadı Değiştirilemedi! ", error)
+        else:
+            print("Soyad Bloğuna Değer Girilmedi!")
+        if yeniNotOrtalama != "":
+            try:
+                cursor = self.connection.cursor()
+                update_query1 = f"UPDATE ogrenciler SET gpa = '{yeniNotOrtalama}' WHERE sicilNo = '{sicilNo}'"
+                cursor.execute(update_query1)
+                self.connection.commit()
+                cursor.close()
+
+                print(f"Kullanıcının Yeni Not Ortalaması: {yeniNotOrtalama}")
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(f"Kullanıcının Yeni Not Ortalaması Değiştirilemedi! ", error)
+        else:
+            print("Not Ortalaması Bloğuna Değer Girilmedi!")
+        if yeniAldigiDersSayi != "":
+            try:
+                cursor = self.connection.cursor()
+                update_query1 = f"UPDATE ogrenciler SET aldigiderssayisi = '{yeniAldigiDersSayi}' WHERE sicilNo = '{sicilNo}'"
+                cursor.execute(update_query1)
+                self.connection.commit()
+                cursor.close()
+
+                print(f"Kullanıcının Yeni Aldığı Ders Sayısı: {yeniAldigiDersSayi}")
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(f"Kullanıcının Yeni Aldığı Ders Sayısı Değiştirilemedi! ", error)
+        else:
+            print("Aldığı Ders Sayısı Bloğuna Değer Girilmedi!")
+
     def deleteStudent(self, sicilNo):
         try:
             cursor = self.connection.cursor()
@@ -300,12 +371,28 @@ class ConnectionToDatabase:
             print("Veritabanı Hatası: ", error)
             return None
 
+    def whoIsLoginName(self, sicilNo):
+        try:
+            cursor = self.connection.cursor()
+            query = "SELECT ad, soyad FROM kullanicilar WHERE sicilNo = %s"
+            cursor.execute(query, (sicilNo,))
+            result = cursor.fetchone()
+
+            name = result[0] + " " + result[1]
+            if result:
+                print("Giriş Sağlayan Kullanıcı: ", name)
+                return name
+            else:
+                print(f"Giriş sağlayan kullanıcı: {None}")
+                return None
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Kullanıcı İsim Hatası: ", error)
+            return None
+
 
 if __name__ == "__main__":
     # connect()
     connect = ConnectionToDatabase()
     connect.read()
-    connect.insertTeacher("Furkan", "Göz", "furkan.goz", 3, "Yapay Zeka")
-    connect.insertStudents("furkan", "karlıdağ", "furkan123", 3.31, 2)
-    connect.read()
+    connect.whoIsLoginName(12)
     connect.disconnectToDataBase()

@@ -114,6 +114,96 @@ def ogretmenBilgileriAl():
     connect.disconnectToDataBase()
 
 
+def kullaniciBilgiGuncelle():
+    kullaniciNo = entryAdminScreenGuncelle.get()
+    connect.connectToDataBase()
+    user_type = connect.whoIsLogin(kullaniciNo)
+    userName = connect.whoIsLoginName(kullaniciNo)
+
+    if user_type == "admin":
+        global errorScreenUpdate
+        errorScreenUpdate = Toplevel()
+        errorScreenUpdate.title("Yönetici Bilgileri Değiştirilemez!")
+        errorScreenUpdate.geometry("200x60")
+        Label(errorScreenUpdate, text="Yönetici Bilgileri Değiştirilemez!").grid(row=0)
+        Button(
+            errorScreenUpdate,
+            text="Tamam",
+            command=lambda: errorScreenUpdate.withdraw(),
+        ).grid(row=1)
+        errorScreenUpdate.deiconify()
+    elif user_type == "ogrenci":
+        global updateScreenStudent
+        updateScreenStudent = Toplevel()
+        updateScreenStudent.title("Öğrenci Bilgilerini Güncelleme")
+        updateScreenStudent.geometry("310x170")
+
+        Label(updateScreenStudent, text=userName.upper()).grid(row=0, columnspan=2)
+
+        Label(updateScreenStudent, text="Ad").grid(row=1, column=0)
+        updateOgrenciAd = Entry(updateScreenStudent)
+        updateOgrenciAd.grid(row=1, column=1)
+
+        Label(updateScreenStudent, text="Soyad").grid(row=2, column=0)
+        updateOgrenciSoyad = Entry(updateScreenStudent)
+        updateOgrenciSoyad.grid(row=2, column=1)
+
+        Label(updateScreenStudent, text="Not Ortalaması").grid(row=3, column=0)
+        updateOgrenciNotOrtalama = Entry(updateScreenStudent)
+        updateOgrenciNotOrtalama.grid(row=3, column=1)
+
+        Label(updateScreenStudent, text="Aldığı Ders Sayısı").grid(row=4, column=0)
+        updateOgrenciAlinanDers = Entry(updateScreenStudent)
+        updateOgrenciAlinanDers.grid(row=4, column=1)
+
+        Button(
+            updateScreenStudent,
+            text="Güncelle",
+            command=lambda: ogrenciBilgiGuncelle(
+                kullaniciNo,
+                updateOgrenciAd.get(),
+                updateOgrenciSoyad.get(),
+                updateOgrenciNotOrtalama.get(),
+                updateOgrenciAlinanDers.get(),
+            ),
+        ).grid(row=5, columnspan=2)
+    elif user_type == "ogretmen":
+        global updateScreenTeacher
+        updateScreenTeacher = Toplevel()
+        updateScreenTeacher.title("Öğretmen Bilgilerini Güncelleme")
+        updateScreenTeacher.geometry("310x170")
+
+        Label(updateScreenTeacher, text=userName.upper()).grid(row=0, columnspan=2)
+
+        Label(updateScreenTeacher, text="Ad").grid(row=1, column=0)
+        Entry(updateScreenTeacher).grid(row=1, column=1)
+
+        Label(updateScreenTeacher, text="Soyad").grid(row=2, column=0)
+        Entry(updateScreenTeacher).grid(row=2, column=1)
+
+        Label(updateScreenTeacher, text="Kontenjan").grid(row=3, column=0)
+        Entry(updateScreenTeacher).grid(row=3, column=1)
+
+        Label(updateScreenTeacher, text="İlgi Alanı").grid(row=4, column=0)
+        Entry(updateScreenTeacher).grid(row=4, column=1)
+
+        Button(
+            updateScreenTeacher,
+            text="Güncelle",
+            command=lambda: print("Güncelliyicem"),
+        ).grid(row=5, columnspan=2)
+
+
+def ogrenciBilgiGuncelle(
+    sicilNo, yeniAd, yeniSoyad, yeniNotOrtalama, yeniAldigiDersSayi
+):
+    connect.connectToDataBase()
+    connect.updateStudent(
+        sicilNo, yeniAd, yeniSoyad, yeniNotOrtalama, yeniAldigiDersSayi
+    )
+    connect.disconnectToDataBase()
+
+
 window = Tk()
 
 window.geometry("1366x768")
@@ -248,7 +338,7 @@ adminScreenOgrenciBilgileriLabel.place(x=32, y=541, anchor="nw")
 
 adminScreenOgretmenBilgileriLabel = Label(
     admin_frame,
-    text="Öğreretmen Bilgileri",
+    text="Öğretmen Bilgileri",
     bg="#F1EEEE",
     fg="#000000",
     font=("Inter", 15),
@@ -551,18 +641,20 @@ adminScreenButtonKullaniciSil = Button(
 )
 adminScreenButtonKullaniciSil.place(x=1132.0, y=375.0, width=200.0, height=31.0)
 
-loginScreenButton4Image = PhotoImage(
-    file=relative_to_assets_admin("loginScreenButton4.png")
+adminScreenButton4Image = PhotoImage(
+    file=relative_to_assets_admin("adminScreenButton4.png")
 )
-loginScreenButton4 = Button(
+adminScreenButtonKullaniciBilgiGuncelle = Button(
     admin_frame,
-    image=loginScreenButton4Image,
+    image=adminScreenButton4Image,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: print("button_4 clicked"),
+    command=lambda: kullaniciBilgiGuncelle(),
     relief="flat",
 )
-loginScreenButton4.place(x=1133.0, y=536.0, width=200.0, height=31.0)
+adminScreenButtonKullaniciBilgiGuncelle.place(
+    x=1133.0, y=536.0, width=200.0, height=31.0
+)
 
 loginScreenButton5Image = PhotoImage(
     file=relative_to_assets_admin("loginScreenButton5.png")

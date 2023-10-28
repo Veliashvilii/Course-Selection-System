@@ -1,16 +1,20 @@
 from pathlib import Path
 from tkinter import *
 import postgresql
+from tkinter import filedialog
 
 OUTPUT_PATH_LOGIN = Path(__file__).parent
 ASSETS_PATH_LOGIN = OUTPUT_PATH_LOGIN / Path(
-    r"/Users/veliashvili/Desktop/YazLab/assetsLoginPanel/frame0"
+    r"/Users/veliashvili/Desktop/yazlab1.3/assetsLoginPanel/frame0"
 )
 
 OUTPUT_PATH_ADMIN = Path(__file__).parent
 ASSETS_PATH_ADMIN = OUTPUT_PATH_ADMIN / Path(
-    r"/Users/veliashvili/Desktop/YazLab/assetsAdminPanel/frame0"
+    r"/Users/veliashvili/Desktop/yazlab1.3/assetsAdminPanel/frame0"
 )
+
+OUTPUT_PATH = Path(__file__).parent
+ASSETS_PATH = OUTPUT_PATH / Path(r"/Users/veliashvili/Desktop/yazlab1.3/assets/frame0")
 
 # SQL connect item
 global connect
@@ -23,6 +27,10 @@ def relative_to_assets_login(path: str) -> Path:
 
 def relative_to_assets_admin(path: str) -> Path:
     return ASSETS_PATH_ADMIN / Path(path)
+
+
+def relative_to_assets(path: str) -> Path:
+    return ASSETS_PATH / Path(path)
 
 
 def login():
@@ -38,7 +46,66 @@ def login():
         elif user_type == "ogretmen":
             pass  # Öğretmen Ekranına Geçişin Kodlanması
         elif user_type == "ogrenci":
-            pass  # Öğrenci Ekranına Geçişin Kodlanması
+            global transkriptScreen
+            transkriptScreen = Toplevel()
+            transkriptScreen.title("Transkriptinizi Lütfen Yükleyiniz!")
+            transkriptScreen.geometry("600x400")
+            transkriptScreen.resizable(False, False)
+            canvasTrans = Canvas(
+                transkriptScreen,
+                bg="#F1EEEE",
+                height=400,
+                width=600,
+                bd=0,
+                highlightthickness=0,
+                relief="ridge",
+            )
+
+            canvasTrans.place(x=0, y=0)
+            canvasTrans.create_rectangle(
+                0.0, 0.0, 600.0, 100.0, fill="#00A571", outline=""
+            )
+
+            image_image_1 = PhotoImage(file=relative_to_assets("image_1.png"))
+            image_1 = canvasTrans.create_image(75.0, 50.0, image=image_image_1)
+
+            canvasTrans.create_text(
+                170.0,
+                41.0,
+                anchor="nw",
+                text="LÜTFEN TRANSKRİPTİNİZİ YÜKLEYİNİZ!",
+                fill="#FFFFFF",
+                font=("Inter", 20 * -1),
+            )
+
+            canvasTrans.create_text(
+                117.0,
+                201.0,
+                anchor="nw",
+                text="Dosya Seçiniz",
+                fill="#000000",
+                font=("Inter", 20 * -1),
+            )
+
+            button_1 = Button(
+                transkriptScreen,
+                borderwidth=0,
+                text="SEÇ",
+                highlightthickness=0,
+                command=lambda: chooseFile(),
+                relief="flat",
+            )
+            button_1.place(x=329.0, y=200.0, width=148.0, height=27.0)
+
+            canvasTrans.create_text(
+                97.0,
+                272.0,
+                anchor="nw",
+                text="Transkriptinizi Lütfen PDF Formatında Yükleyiniz!",
+                fill="#000000",
+                font=("Inter", 15 * -1),
+            )
+            transkriptScreen.deiconify()
     else:
         global errorScreen
         errorScreen = Toplevel()
@@ -49,6 +116,15 @@ def login():
             row=1
         )
         errorScreen.deiconify()
+
+
+def chooseFile():
+    filePath = ""
+    filePath = filedialog.askopenfilename()
+
+    if filePath != "":
+        connect.readTranscript(filePath)
+        transkriptScreen.withdraw()
 
 
 def hocaEkle():

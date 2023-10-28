@@ -92,7 +92,7 @@ def login():
                 borderwidth=0,
                 text="SEÇ",
                 highlightthickness=0,
-                command=lambda: chooseFile(),
+                command=lambda: chooseFile(username),
                 relief="flat",
             )
             button_1.place(x=329.0, y=200.0, width=148.0, height=27.0)
@@ -118,12 +118,12 @@ def login():
         errorScreen.deiconify()
 
 
-def chooseFile():
+def chooseFile(username):
     filePath = ""
     filePath = filedialog.askopenfilename()
 
     if filePath != "":
-        connect.readTranscript(filePath)
+        connect.readTranscript(username, filePath)
         transkriptScreen.withdraw()
 
 

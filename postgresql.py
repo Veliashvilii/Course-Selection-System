@@ -497,16 +497,11 @@ class ConnectionToDatabase:
             print("Kullanıcı İsim Hatası: ", error)
             return None
 
-    def readTranscript(self, file):
-        file = "/Users/veliashvili/Desktop/yazlab1.3/metehan-belli-transkript.pdf"
+    def readTranscript(self, username, file):
+        # file = "/Users/veliashvili/Desktop/yazlab1.3/metehan-belli-transkript.pdf"
         reader = PdfReader(file)
-        # print(f"Number of Pages: {len(reader.pages)}")
-        # print(f"Page Number 1 Contains:\n {reader.pages[0].extract_text()}")
-
-        # text = reader.pages[0].extract_text()
         total_pages = len(reader.pages)
 
-        counter = 0
         codes = []
         courses = []
         for page_num in range(total_pages - 1):
@@ -515,21 +510,16 @@ class ConnectionToDatabase:
             for line in text.split("\n"):
                 matches = re.findall(r"[A-Z]{3}\d{3}", line)
                 if matches:
-                    counter += 1
                     for match in matches:
-                        # print(match)
                         codes.append(match)
                         courses.append(line)
 
         codes.pop(17)
         courses.pop(17)
-        print(f"Kaç Ders Kodu Buldum: {len(codes)}")
 
         for i in range(len(courses)):
             courses[i] = courses[i][7:]
-            # print(courses[i])
 
-        counter1 = 0
         grades = []
         for page_num in range(total_pages - 1):
             page = reader.pages[page_num]
@@ -537,16 +527,46 @@ class ConnectionToDatabase:
             for line in text.split("\n"):
                 matches = re.findall(r"AA|BA|BB|CB|CC|DC|DD|FD|FF", line)
                 if matches:
-                    counter1 += 1
                     for match in matches:
-                        # print(match)
                         grades.append(match)
-        print(f"Kaç Dersin Puanını Buldum: {counter1}")
 
-        complatedArray = list(zip(codes, courses, grades))
+        try:
+            for i in range(len(courses)):
+                cursor = self.connection.cursor()
+                insert_query = "INSERT INTO ogrenciDersler (dersKodu, sicilNo, dersAdi, harfNotu) VALUES (%s, %s, %s, %s)"
+                cursor.execute(
+                    insert_query, (codes[i], username, courses[i], grades[i])
+                )
+                self.connection.commit()
+                cursor.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Ders Tablosuna Ekleme Yapılırken Hata ile Karşılaşıldı: ", error)
 
-        for row in complatedArray:
-            print(row)
+    def deleteCourses(self, file):
+        reader = PdfReader(file)
+        total_pages = len(reader.pages)
+
+        codes = []
+        for page_num in range(total_pages - 1):
+            page = reader.pages[page_num]
+            text = page.extract_text()
+            for line in text.split("\n"):
+                matches = re.findall(r"[A-Z]{3}\d{3}", line)
+                if matches:
+                    for match in matches:
+                        codes.append(match)
+
+        codes.pop(17)
+
+        try:
+            for i in range(len(codes)):
+                cursor = self.connection.cursor()
+                delete_query = "DELETE FROM ogrenciDersler WHERE dersKodu = %s"
+                cursor.execute(delete_query, (codes[i],))
+                self.connection.commit()
+                cursor.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Dersler Silinirken Bir Hata Oluştu: ", error)
 
 
 if __name__ == "__main__":
@@ -554,7 +574,7 @@ if __name__ == "__main__":
     connect = ConnectionToDatabase()
     connect.read()
     connect.whoIsLoginName(12)
-    connect.disconnectToDataBase()
-    connect.readTranscript(
+    connect.deleteCourses(
         "/Users/veliashvili/Desktop/yazlab1.3/metehan-belli-transkript.pdf"
     )
+    connect.disconnectToDataBase()

@@ -123,8 +123,10 @@ def chooseFile(username):
     filePath = filedialog.askopenfilename()
 
     if filePath != "":
-        connect.readTranscript(username, filePath)
+        connect.insertTranscript(username, filePath)
         transkriptScreen.withdraw()
+        main_frame.pack_forget()
+        student_frame.pack(fill="both", expand=True)
 
 
 def hocaEkle():
@@ -319,6 +321,8 @@ main_frame = Frame(window, bg="#FFFFFF")
 main_frame.pack(fill="both", expand=True)
 
 admin_frame = Frame(window, bg="#FFFFFF")
+
+student_frame = Frame(window, bg="#F1FFFF")
 
 ##################### LOGIN SCREEN ############################
 
@@ -984,6 +988,27 @@ adminScreenMeteLabel = Label(
 adminScreenMeteLabel.place(x=1168, y=725, anchor="nw")
 
 ##################### ADMIN SCREEN END ############################
+
+##################### STUDENT SCREEN START ############################
+
+
+def readaaa():
+    connect.connectToDataBase()
+    connect.readTranscriptsData()
+    connect.disconnectToDataBase()
+
+
+button_1 = Button(
+    student_frame,
+    borderwidth=0,
+    text="BAS BANA",
+    highlightthickness=0,
+    command=lambda: readaaa(),
+    relief="flat",
+)
+button_1.place(x=329.0, y=200.0, width=148.0, height=27.0)
+
+##################### STUDENT SCREEN END ############################
 
 window.resizable(False, False)
 window.mainloop()

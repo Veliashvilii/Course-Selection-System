@@ -497,7 +497,7 @@ class ConnectionToDatabase:
             print("Kullanıcı İsim Hatası: ", error)
             return None
 
-    def readTranscript(self, username, file):
+    def insertTranscript(self, username, file):
         # file = "/Users/veliashvili/Desktop/yazlab1.3/metehan-belli-transkript.pdf"
         reader = PdfReader(file)
         total_pages = len(reader.pages)
@@ -568,13 +568,47 @@ class ConnectionToDatabase:
         except (Exception, psycopg2.DatabaseError) as error:
             print("Dersler Silinirken Bir Hata Oluştu: ", error)
 
+    def readTranscriptsData(self):
+        try:
+            global infoScreenTranscript
+            infoScreenTranscript = Toplevel()
+            infoScreenTranscript.title("Verilen Ders Bilgileri")
+            infoScreenTranscript.geometry("503x228")
+
+            cursor = self.connection.cursor()
+            cursor.execute("SELECT * FROM ogrenciDersler")
+
+            tree = ttk.Treeview(infoScreenTranscript)
+            tree["show"] = "headings"
+
+            style = ttk.Style(infoScreenTranscript)
+            style.theme_use("clam")
+
+            tree["columns"] = ("derskodu", "sicilno", "dersadi", "harfnotu")
+            tree.column("derskodu", width=100, minwidth=100, anchor=tk.CENTER)
+            tree.column("sicilno", width=100, minwidth=100, anchor=tk.CENTER)
+            tree.column("dersadi", width=200, minwidth=100, anchor=tk.CENTER)
+            tree.column("harfnotu", width=100, minwidth=100, anchor=tk.CENTER)
+
+            tree.heading("derskodu", text="Ders Kodu", anchor=tk.CENTER)
+            tree.heading("sicilno", text="Sicil No", anchor=tk.CENTER)
+            tree.heading("dersadi", text="Ders Adı", anchor=tk.CENTER)
+            tree.heading("harfnotu", text="Harf Notu", anchor=tk.CENTER)
+
+            i = 0
+            for row in cursor:
+                tree.insert("", i, text="", values=(row[0], row[1], row[2], row[3]))
+                i += 1
+
+            tree.pack()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Transkript Okunurken Hata Oluştu: ", error)
+
 
 if __name__ == "__main__":
     # connect()
     connect = ConnectionToDatabase()
     connect.read()
     connect.whoIsLoginName(12)
-    connect.deleteCourses(
-        "/Users/veliashvili/Desktop/yazlab1.3/metehan-belli-transkript.pdf"
-    )
+    connect.readTranscriptsData()
     connect.disconnectToDataBase()

@@ -26,6 +26,9 @@ ASSETS_PATH_STUDENT = OUTPUT_PATH_STUDENT / Path(
 global connect
 connect = postgresql.ConnectionToDatabase()
 
+global mesajKarakterSayisi
+mesajKarakterSayisiGuncel = 5
+
 
 def relative_to_assets_login(path: str) -> Path:
     return ASSETS_PATH_LOGIN / Path(path)
@@ -820,12 +823,31 @@ loginScreenButton7.place(x=428.0, y=319.0, width=200.0, height=31.0)
 loginScreenButton8Image = PhotoImage(
     file=relative_to_assets_admin("loginScreenButton8.png")
 )
+
+
+def mesajKarakterSayisiKisitla(mesajKarakterSayisi):
+    mesajKarakterSayisiGuncel = mesajKarakterSayisi
+    global infoScreenMesajKarakter
+    infoScreenMesajKarakter = Tk()
+    infoScreenMesajKarakter.title("İşlem Başarıyla Gerçekleştirildi!")
+    print(f"Yeni Mesaj Karakter Sayısı: {mesajKarakterSayisiGuncel}")
+    Label(infoScreenMesajKarakter, text="İşlem Başarıyla Gerçekleştirildi!").grid(
+        row=0, column=0
+    )
+    Button(
+        infoScreenMesajKarakter,
+        text="Tamam",
+        command=lambda: infoScreenMesajKarakter.withdraw(),
+    ).grid(row=1, column=0)
+    infoScreenMesajKarakter.deiconify()
+
+
 loginScreenButton8 = Button(
     admin_frame,
     image=loginScreenButton8Image,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: print("button_8 clicked"),
+    command=lambda: mesajKarakterSayisiKisitla(entryAdminScreenMesajKarakter.get()),
     relief="flat",
 )
 loginScreenButton8.place(x=428.0, y=376.0, width=200.0, height=31.0)
@@ -1041,10 +1063,27 @@ def studentMesajGonder():
 
 
 def sendMessageFromStudent(aliciNo, mesaj_icerigi):
-    connect.connectToDataBase()
-    connect.sendMessage(username, aliciNo, "ogrenci", mesaj_icerigi)
-    connect.disconnectToDataBase()
-    sendMessageScreen.withdraw()
+    if len(mesaj_icerigi) <= mesajKarakterSayisiGuncel:
+        connect.connectToDataBase()
+        connect.sendMessage(username, aliciNo, "ogrenci", mesaj_icerigi)
+        connect.disconnectToDataBase()
+        sendMessageScreen.withdraw()
+        print("Yolluyorum")
+    else:
+        print("Yollayamıyorum")
+        global errorScreenMessage
+        errorScreenMessage = Tk()
+        errorScreenMessage.title("Karakter Sayısı Aşıldı!")
+        Label(
+            errorScreenMessage,
+            text=f"Lütfen Mesajınızı Karakter Sınırına Uydurunuz: {mesajKarakterSayisiGuncel}",
+        ).grid(row=0, column=0)
+
+        Button(
+            errorScreenMessage,
+            text="Tamam",
+            command=lambda: errorScreenMessage.withdraw(),
+        ).grid(row=1, column=0)
 
 
 def studentGelenKutusu():

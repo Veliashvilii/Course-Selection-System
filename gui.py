@@ -21,6 +21,10 @@ ASSETS_PATH_STUDENT = OUTPUT_PATH_STUDENT / Path(
     r"/Users/veliashvili/Desktop/yazlab1.3/studentScreenAssets/frame0"
 )
 
+OUTPUT_PATH_TEACHER = Path(__file__).parent
+ASSETS_PATH_TEACHER = OUTPUT_PATH_TEACHER / Path(
+    r"/Users/veliashvili/Desktop/yazlab1.3/assetsTeacher/frame0"
+)
 
 # SQL connect item
 global connect
@@ -46,6 +50,10 @@ def relative_to_assets_student(path: str) -> Path:
     return ASSETS_PATH_STUDENT / Path(path)
 
 
+def relative_to_assets_teacher(path: str) -> Path:
+    return ASSETS_PATH_TEACHER / Path(path)
+
+
 def login():
     global username
     username = entryLoginScreenUsername.get()
@@ -59,7 +67,9 @@ def login():
             admin_frame.pack(fill="both", expand=True)
             connect.disconnectToDataBase()
         elif user_type == "ogretmen":
-            pass  # Öğretmen Ekranına Geçişin Kodlanması
+            main_frame.pack_forget()
+            teacher_frame.pack(fill="both", expand=True)
+            connect.disconnectToDataBase()
         elif user_type == "ogrenci":
             global transkriptScreen
             transkriptScreen = Toplevel()
@@ -334,10 +344,10 @@ window.configure(bg="#FFFFFF")
 
 main_frame = Frame(window, bg="#FFFFFF")
 main_frame.pack(fill="both", expand=True)
-
 admin_frame = Frame(window, bg="#FFFFFF")
-
 student_frame = Frame(window, bg="#F1FFFF")
+teacher_frame = Frame(window, bg="#F1FFFF")
+
 
 ##################### LOGIN SCREEN ############################
 
@@ -1068,9 +1078,7 @@ def sendMessageFromStudent(aliciNo, mesaj_icerigi):
         connect.sendMessage(username, aliciNo, "ogrenci", mesaj_icerigi)
         connect.disconnectToDataBase()
         sendMessageScreen.withdraw()
-        print("Yolluyorum")
     else:
-        print("Yollayamıyorum")
         global errorScreenMessage
         errorScreenMessage = Tk()
         errorScreenMessage.title("Karakter Sayısı Aşıldı!")
@@ -1208,6 +1216,192 @@ canvasStudentScreen.create_rectangle(
 )
 
 ##################### STUDENT SCREEN END ############################
+
+##################### TEACHER SCREEN START ############################
+
+
+def teacherScreenCikisYap():
+    connect.disconnectToDataBase()
+    teacher_frame.pack_forget()
+    main_frame.pack(fill="both", expand=True)
+
+
+def teacherGelenKutusu():
+    connect.connectToDataBase()
+    connect.readMessage(username)
+    connect.disconnectToDataBase()
+
+
+def teacherMesajGonder():
+    global sendMessageScreen1
+    sendMessageScreen1 = Toplevel()
+    sendMessageScreen1.title("Mesaj Taslağı")
+    sendMessageScreen1.geometry("300x200")
+
+    Label(sendMessageScreen1, text=f"Gönderici: {username}").grid(row=0, columnspan=2)
+
+    Label(sendMessageScreen1, text="Alıcı Okul No: ").grid(row=1, column=0)
+    aliciNoEntry1 = Entry(sendMessageScreen1)
+    aliciNoEntry1.grid(row=1, column=1)
+
+    Label(sendMessageScreen1, text="Mesaj: ").grid(row=2, column=0)
+    mesajEntry1 = Entry(sendMessageScreen1)
+    mesajEntry1.grid(row=2, column=1)
+
+    teacherSendMessageButton = Button(
+        sendMessageScreen1,
+        text="GÖNDER",
+        command=lambda: sendMessageFromTeacher(aliciNoEntry1.get(), mesajEntry1.get()),
+    )
+    teacherSendMessageButton.grid(row=3, columnspan=2)
+
+
+def sendMessageFromTeacher(aliciNo, mesaj_icerigi):
+    if len(mesaj_icerigi) <= mesajKarakterSayisiGuncel:
+        connect.connectToDataBase()
+        connect.sendMessage(username, aliciNo, "ogretmen", mesaj_icerigi)
+        connect.disconnectToDataBase()
+        sendMessageScreen1.withdraw()
+    else:
+        global errorScreenMessage
+        errorScreenMessage = Tk()
+        errorScreenMessage.title("Karakter Sayısı Aşıldı!")
+        Label(
+            errorScreenMessage,
+            text=f"Lütfen Mesajınızı Karakter Sınırına Uydurunuz: {mesajKarakterSayisiGuncel}",
+        ).grid(row=0, column=0)
+
+        Button(
+            errorScreenMessage,
+            text="Tamam",
+            command=lambda: errorScreenMessage.withdraw(),
+        ).grid(row=1, column=0)
+
+
+canvasTeacherScreen = Canvas(
+    teacher_frame,
+    bg="#FFFFFF",
+    height=768,
+    width=1366,
+    bd=0,
+    highlightthickness=0,
+    relief="ridge",
+)
+
+canvasTeacherScreen.place(x=0, y=0)
+canvasTeacherScreen.create_rectangle(
+    0.0, 0.0, 1366.0, 768.0, fill="#F1EEEE", outline=""
+)
+
+canvasTeacherScreen.create_rectangle(
+    0.0, 0.0, 1366.0, 138.0, fill="#00A571", outline=""
+)
+
+teacher_image_1 = PhotoImage(file=relative_to_assets_teacher("image_1.png"))
+teacherimage_1 = canvasTeacherScreen.create_image(160.0, 69.0, image=teacher_image_1)
+
+teacherScreenTopTextLabel = Label(
+    teacher_frame,
+    text="ÖĞRETMEN PANELİNE HOŞ GELDİNİZ!",
+    bg="#00A571",
+    fg="#FFFFFF",
+    font=("Inter", 30),
+)
+teacherScreenTopTextLabel.place(x=439, y=44, anchor="nw")
+
+teacherScreenKOUName = Label(
+    teacher_frame,
+    text="KOCAELİ ÜNİVERSİTESİ",
+    bg="#F1F1F1",
+    fg="black",
+    font=("Inter", 20),
+)
+teacherScreenKOUName.place(x=69, y=725, anchor="nw")
+
+teacherScreenMete = Label(
+    teacher_frame,
+    text="METEHAN BELLİ",
+    bg="#F1F1F1",
+    fg="black",
+    font=("Inter", 20),
+)
+teacherScreenMete.place(x=1150, y=725, anchor="nw")
+
+teacherScreenIlgiButton = Button(
+    teacher_frame,
+    borderwidth=0,
+    text="İlgi Alanlarını Yönet",
+    highlightthickness=0,
+    command=lambda: print("İlgi Alanlarını Yöneticem"),
+    relief="flat",
+)
+teacherScreenIlgiButton.place(x=250.0, y=184.0, width=248.0, height=50.0)
+
+teacherScreenTalepButton = Button(
+    teacher_frame,
+    borderwidth=0,
+    text="Talepleri Listele",
+    highlightthickness=0,
+    command=lambda: print("Talepleri Listeliyicem"),
+    relief="flat",
+)
+teacherScreenTalepButton.place(x=250.0, y=314.0, width=248.0, height=50.0)
+
+teacherScreenOgrenciButton = Button(
+    teacher_frame,
+    borderwidth=0,
+    text="Öğrencileri Listele",
+    highlightthickness=0,
+    command=lambda: print("Öğrencileri Listeliyicem"),
+    relief="flat",
+)
+teacherScreenOgrenciButton.place(x=250.0, y=444.0, width=248.0, height=50.0)
+
+teacherScreenNotButton = Button(
+    teacher_frame,
+    borderwidth=0,
+    text="Not Ortalaması",
+    highlightthickness=0,
+    command=lambda: print("Not Ortalaması Yapıcam"),
+    relief="flat",
+)
+teacherScreenNotButton.place(x=868.0, y=184.0, width=248.0, height=50.0)
+
+teacherScreenGelenKutusuButton = Button(
+    teacher_frame,
+    borderwidth=0,
+    text="Gelen Kutusu",
+    highlightthickness=0,
+    command=lambda: teacherGelenKutusu(),
+    relief="flat",
+)
+teacherScreenGelenKutusuButton.place(x=868.0, y=314.0, width=248.0, height=50.0)
+
+teacherScreenMesajGonderButton = Button(
+    teacher_frame,
+    borderwidth=0,
+    text="Mesaj Gönder",
+    highlightthickness=0,
+    command=lambda: teacherMesajGonder(),
+    relief="flat",
+)
+teacherScreenMesajGonderButton.place(x=868.0, y=444.0, width=248.0, height=50.0)
+
+teacherScreenCikisButton = Button(
+    teacher_frame,
+    borderwidth=0,
+    text="ÇIKIŞ",
+    highlightthickness=0,
+    command=lambda: teacherScreenCikisYap(),
+    relief="flat",
+)
+teacherScreenCikisButton.place(x=565.0, y=574.0, width=248.0, height=50.0)
+
+canvasTeacherScreen.create_rectangle(
+    31.0, 705, 1331.99951171875, 707, fill="#878282", outline=""
+)
+
+##################### TEACHER SCREEN END ############################
 
 window.resizable(False, False)
 window.mainloop()

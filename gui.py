@@ -1001,7 +1001,7 @@ adminScreenMeteLabel.place(x=1168, y=725, anchor="nw")
 ##################### STUDENT SCREEN START ############################
 
 
-def readaaa():
+def readTranscriptsDataStudent():
     connect.connectToDataBase()
     connect.readTranscriptsData()
     connect.disconnectToDataBase()
@@ -1057,6 +1057,50 @@ studentScreenMete = Label(
     font=("Inter", 20),
 )
 studentScreenMete.place(x=1150, y=725, anchor="nw")
+
+studentScreenDersBilgileriButton = Button(
+    student_frame,
+    borderwidth=0,
+    text="Alınan Ders Bilgileri",
+    highlightthickness=0,
+    command=lambda: readTranscriptsDataStudent(),
+    relief="flat",
+)
+studentScreenDersBilgileriButton.place(x=559.0, y=229.0, width=248.0, height=54.0)
+
+studentScreenDersTalebiButton = Button(
+    student_frame,
+    borderwidth=0,
+    text="Ders Talebi",
+    highlightthickness=0,
+    command=lambda: print("Ders Talep Edicem"),
+    relief="flat",
+)
+studentScreenDersTalebiButton.place(x=559.0, y=347.0, width=248.0, height=54.0)
+
+studentScreenHocaListeleButton = Button(
+    student_frame,
+    borderwidth=0,
+    text="Öğretmenleri Listele",
+    highlightthickness=0,
+    command=lambda: print("Hocaları Listeliyicem"),
+    relief="flat",
+)
+studentScreenHocaListeleButton.place(x=559.0, y=461.0, width=248.0, height=54.0)
+
+studentScreenMesajGonderButton = Button(
+    student_frame,
+    borderwidth=0,
+    text="Mesaj Gönder",
+    highlightthickness=0,
+    command=lambda: print("Mesaj Göndericem"),
+    relief="flat",
+)
+studentScreenMesajGonderButton.place(x=559.0, y=575.0, width=248.0, height=54.0)
+
+canvasStudentScreen.create_rectangle(
+    31.0, 699, 1331.99951171875, 701, fill="#878282", outline=""
+)
 
 ##################### STUDENT SCREEN END ############################
 

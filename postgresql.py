@@ -533,16 +533,16 @@ class ConnectionToDatabase:
         try:
             for i in range(len(courses)):
                 cursor = self.connection.cursor()
-                insert_query = "INSERT INTO ogrenciDersler (dersKodu, sicilNo, dersAdi, harfNotu) VALUES (%s, %s, %s, %s)"
+                insert_query = "INSERT INTO ogrenciDersler (sicilNo, dersKodu, dersAdi, harfNotu) VALUES (%s, %s, %s, %s)"
                 cursor.execute(
-                    insert_query, (codes[i], username, courses[i], grades[i])
+                    insert_query, (username, codes[i], courses[i], grades[i])
                 )
                 self.connection.commit()
                 cursor.close()
         except (Exception, psycopg2.DatabaseError) as error:
             print("Ders Tablosuna Ekleme Yapılırken Hata ile Karşılaşıldı: ", error)
 
-    def deleteCourses(self, file):
+    def deleteCourses(self, username, file):
         reader = PdfReader(file)
         total_pages = len(reader.pages)
 
@@ -561,8 +561,10 @@ class ConnectionToDatabase:
         try:
             for i in range(len(codes)):
                 cursor = self.connection.cursor()
-                delete_query = "DELETE FROM ogrenciDersler WHERE dersKodu = %s"
-                cursor.execute(delete_query, (codes[i],))
+                delete_query = (
+                    "DELETE FROM ogrenciDersler WHERE sicilNo = %s AND dersKodu = %s"
+                )
+                cursor.execute(delete_query, (username, codes[i]))
                 self.connection.commit()
                 cursor.close()
         except (Exception, psycopg2.DatabaseError) as error:
@@ -584,14 +586,14 @@ class ConnectionToDatabase:
             style = ttk.Style(infoScreenTranscript)
             style.theme_use("clam")
 
-            tree["columns"] = ("derskodu", "sicilno", "dersadi", "harfnotu")
-            tree.column("derskodu", width=100, minwidth=100, anchor=tk.CENTER)
+            tree["columns"] = ("sicilno", "derskodu", "dersadi", "harfnotu")
             tree.column("sicilno", width=100, minwidth=100, anchor=tk.CENTER)
+            tree.column("derskodu", width=100, minwidth=100, anchor=tk.CENTER)
             tree.column("dersadi", width=200, minwidth=100, anchor=tk.CENTER)
             tree.column("harfnotu", width=100, minwidth=100, anchor=tk.CENTER)
 
-            tree.heading("derskodu", text="Ders Kodu", anchor=tk.CENTER)
             tree.heading("sicilno", text="Sicil No", anchor=tk.CENTER)
+            tree.heading("derskodu", text="Ders Kodu", anchor=tk.CENTER)
             tree.heading("dersadi", text="Ders Adı", anchor=tk.CENTER)
             tree.heading("harfnotu", text="Harf Notu", anchor=tk.CENTER)
 
@@ -610,5 +612,7 @@ if __name__ == "__main__":
     connect = ConnectionToDatabase()
     connect.read()
     connect.whoIsLoginName(12)
-    connect.readTranscriptsData()
+    connect.deleteCourses(
+        12, "/Users/veliashvili/Desktop/yazlab1.3/metehan-belli-transkript.pdf"
+    )
     connect.disconnectToDataBase()

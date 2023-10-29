@@ -16,6 +16,11 @@ ASSETS_PATH_ADMIN = OUTPUT_PATH_ADMIN / Path(
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path(r"/Users/veliashvili/Desktop/yazlab1.3/assets/frame0")
 
+OUTPUT_PATH_STUDENT = Path(__file__).parent
+ASSETS_PATH_STUDENT = OUTPUT_PATH_STUDENT / Path(
+    r"/Users/veliashvili/Desktop/yazlab1.3/studentScreenAssets/frame0"
+)
+
 # SQL connect item
 global connect
 connect = postgresql.ConnectionToDatabase()
@@ -31,6 +36,10 @@ def relative_to_assets_admin(path: str) -> Path:
 
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
+
+
+def relative_to_assets_student(path: str) -> Path:
+    return ASSETS_PATH_STUDENT / Path(path)
 
 
 def login():
@@ -998,15 +1007,56 @@ def readaaa():
     connect.disconnectToDataBase()
 
 
-button_1 = Button(
+canvasStudentScreen = Canvas(
     student_frame,
-    borderwidth=0,
-    text="BAS BANA",
+    bg="#FFFFFF",
+    height=768,
+    width=1366,
+    bd=0,
     highlightthickness=0,
-    command=lambda: readaaa(),
-    relief="flat",
+    relief="ridge",
 )
-button_1.place(x=329.0, y=200.0, width=148.0, height=27.0)
+
+canvasStudentScreen.place(x=0, y=0)
+canvasStudentScreen.create_rectangle(
+    0.0, 0.0, 1366.0, 768.0, fill="#F1EEEE", outline=""
+)
+
+canvasStudentScreen.create_rectangle(
+    0.0, 0.0, 1366.0, 138.0, fill="#00A571", outline=""
+)
+
+studentScreen_image_1 = PhotoImage(file=relative_to_assets_student("image_1.png"))
+studentScreenimage_1 = canvasStudentScreen.create_image(
+    160.0, 69.0, image=studentScreen_image_1
+)
+
+studentScreenTopTextLabel = Label(
+    student_frame,
+    text="ÖĞRENCİ PANELİNE HOŞ GELDİNİZ!",
+    bg="#00A571",
+    fg="#FFFFFF",
+    font=("Inter", 30),
+)
+studentScreenTopTextLabel.place(x=439, y=44, anchor="nw")
+
+studentScreenKOUName = Label(
+    student_frame,
+    text="KOCAELİ ÜNİVERSİTESİ",
+    bg="#F1F1F1",
+    fg="black",
+    font=("Inter", 20),
+)
+studentScreenKOUName.place(x=69, y=725, anchor="nw")
+
+studentScreenMete = Label(
+    student_frame,
+    text="METEHAN BELLİ",
+    bg="#F1F1F1",
+    fg="black",
+    font=("Inter", 20),
+)
+studentScreenMete.place(x=1150, y=725, anchor="nw")
 
 ##################### STUDENT SCREEN END ############################
 

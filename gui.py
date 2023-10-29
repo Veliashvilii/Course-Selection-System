@@ -45,6 +45,7 @@ def relative_to_assets_student(path: str) -> Path:
 def login():
     username = entryLoginScreenUsername.get()
     password = entryLoginScreenPassword.get()
+    connect.connectToDataBase()
 
     if connect.login(username, password):
         user_type = connect.whoIsLogin(username)
@@ -1007,6 +1008,12 @@ def readTranscriptsDataStudent():
     connect.disconnectToDataBase()
 
 
+def studentScreenCikisYap():
+    connect.disconnectToDataBase()
+    student_frame.pack_forget()
+    main_frame.pack(fill="both", expand=True)
+
+
 canvasStudentScreen = Canvas(
     student_frame,
     bg="#FFFFFF",
@@ -1066,7 +1073,7 @@ studentScreenDersBilgileriButton = Button(
     command=lambda: readTranscriptsDataStudent(),
     relief="flat",
 )
-studentScreenDersBilgileriButton.place(x=559.0, y=229.0, width=248.0, height=54.0)
+studentScreenDersBilgileriButton.place(x=559.0, y=184.0, width=248.0, height=54.0)
 
 studentScreenDersTalebiButton = Button(
     student_frame,
@@ -1076,7 +1083,7 @@ studentScreenDersTalebiButton = Button(
     command=lambda: print("Ders Talep Edicem"),
     relief="flat",
 )
-studentScreenDersTalebiButton.place(x=559.0, y=347.0, width=248.0, height=54.0)
+studentScreenDersTalebiButton.place(x=559.0, y=284.0, width=248.0, height=54.0)
 
 studentScreenHocaListeleButton = Button(
     student_frame,
@@ -1086,7 +1093,7 @@ studentScreenHocaListeleButton = Button(
     command=lambda: print("Hocaları Listeliyicem"),
     relief="flat",
 )
-studentScreenHocaListeleButton.place(x=559.0, y=461.0, width=248.0, height=54.0)
+studentScreenHocaListeleButton.place(x=559.0, y=384.0, width=248.0, height=54.0)
 
 studentScreenMesajGonderButton = Button(
     student_frame,
@@ -1096,7 +1103,17 @@ studentScreenMesajGonderButton = Button(
     command=lambda: print("Mesaj Göndericem"),
     relief="flat",
 )
-studentScreenMesajGonderButton.place(x=559.0, y=575.0, width=248.0, height=54.0)
+studentScreenMesajGonderButton.place(x=559.0, y=484.0, width=248.0, height=54.0)
+
+studentScreenCikisYapButton = Button(
+    student_frame,
+    borderwidth=0,
+    text="Çıkış Yap",
+    highlightthickness=0,
+    command=lambda: studentScreenCikisYap(),
+    relief="flat",
+)
+studentScreenCikisYapButton.place(x=559.0, y=584.0, width=248.0, height=54.0)
 
 canvasStudentScreen.create_rectangle(
     31.0, 699, 1331.99951171875, 701, fill="#878282", outline=""

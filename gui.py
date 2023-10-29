@@ -21,6 +21,7 @@ ASSETS_PATH_STUDENT = OUTPUT_PATH_STUDENT / Path(
     r"/Users/veliashvili/Desktop/yazlab1.3/studentScreenAssets/frame0"
 )
 
+
 # SQL connect item
 global connect
 connect = postgresql.ConnectionToDatabase()
@@ -43,6 +44,7 @@ def relative_to_assets_student(path: str) -> Path:
 
 
 def login():
+    global username
     username = entryLoginScreenUsername.get()
     password = entryLoginScreenPassword.get()
     connect.connectToDataBase()
@@ -1014,6 +1016,16 @@ def studentScreenCikisYap():
     main_frame.pack(fill="both", expand=True)
 
 
+def studentMesajGonder():
+    pass
+
+
+def studentGelenKutusu():
+    connect.connectToDataBase()
+    connect.readMessage(username)
+    connect.disconnectToDataBase()
+
+
 canvasStudentScreen = Canvas(
     student_frame,
     bg="#FFFFFF",
@@ -1073,7 +1085,7 @@ studentScreenDersBilgileriButton = Button(
     command=lambda: readTranscriptsDataStudent(),
     relief="flat",
 )
-studentScreenDersBilgileriButton.place(x=559.0, y=184.0, width=248.0, height=54.0)
+studentScreenDersBilgileriButton.place(x=559.0, y=184.0, width=248.0, height=50.0)
 
 studentScreenDersTalebiButton = Button(
     student_frame,
@@ -1083,7 +1095,7 @@ studentScreenDersTalebiButton = Button(
     command=lambda: print("Ders Talep Edicem"),
     relief="flat",
 )
-studentScreenDersTalebiButton.place(x=559.0, y=284.0, width=248.0, height=54.0)
+studentScreenDersTalebiButton.place(x=559.0, y=274.0, width=248.0, height=50.0)
 
 studentScreenHocaListeleButton = Button(
     student_frame,
@@ -1093,17 +1105,27 @@ studentScreenHocaListeleButton = Button(
     command=lambda: print("Hocaları Listeliyicem"),
     relief="flat",
 )
-studentScreenHocaListeleButton.place(x=559.0, y=384.0, width=248.0, height=54.0)
+studentScreenHocaListeleButton.place(x=559.0, y=364.0, width=248.0, height=50.0)
 
 studentScreenMesajGonderButton = Button(
     student_frame,
     borderwidth=0,
     text="Mesaj Gönder",
     highlightthickness=0,
-    command=lambda: print("Mesaj Göndericem"),
+    command=lambda: studentMesajGonder(),
     relief="flat",
 )
-studentScreenMesajGonderButton.place(x=559.0, y=484.0, width=248.0, height=54.0)
+studentScreenMesajGonderButton.place(x=559.0, y=454.0, width=248.0, height=50.0)
+
+studentScreenGelenKutusuButton = Button(
+    student_frame,
+    borderwidth=0,
+    text="Gelen Kutusu",
+    highlightthickness=0,
+    command=lambda: studentGelenKutusu(),
+    relief="flat",
+)
+studentScreenGelenKutusuButton.place(x=559.0, y=544.0, width=248.0, height=50.0)
 
 studentScreenCikisYapButton = Button(
     student_frame,
@@ -1113,10 +1135,10 @@ studentScreenCikisYapButton = Button(
     command=lambda: studentScreenCikisYap(),
     relief="flat",
 )
-studentScreenCikisYapButton.place(x=559.0, y=584.0, width=248.0, height=54.0)
+studentScreenCikisYapButton.place(x=559.0, y=634.0, width=248.0, height=50.0)
 
 canvasStudentScreen.create_rectangle(
-    31.0, 699, 1331.99951171875, 701, fill="#878282", outline=""
+    31.0, 705, 1331.99951171875, 707, fill="#878282", outline=""
 )
 
 ##################### STUDENT SCREEN END ############################

@@ -606,13 +606,74 @@ class ConnectionToDatabase:
         except (Exception, psycopg2.DatabaseError) as error:
             print("Transkript Okunurken Hata Oluştu: ", error)
 
+    def sendMessage(self, gonderenSicilNo, aliciSicilNo, tur, mesaj_icerigi):
+        try:
+            cursor = self.connection.cursor()
+            send_query = "INSERT INTO mesajlar (timestamp, gonderenSicilNo, aliciSicilNo, tur, mesaj_icerigi) VALUES (NOW(), %s, %s, %s, %s)"
+            cursor.execute(
+                send_query, (gonderenSicilNo, aliciSicilNo, tur, mesaj_icerigi)
+            )
+            self.connection.commit()
+            cursor.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Mesaj Gönderilirken Bir Hata Oluştu: ", error)
+
+    def readMessage(self, aliciNo):
+        try:
+            global infoScreenMessages
+            infoScreenMessages = Toplevel()
+            infoScreenMessages.title("Gelen Kutusu")
+            infoScreenMessages.geometry("1070x200")
+
+            cursor = self.connection.cursor()
+            cursor.execute("SELECT * FROM mesajlar WHERE aliciSicilNo = %s", (aliciNo,))
+
+            tree = ttk.Treeview(infoScreenMessages)
+            tree["show"] = "headings"
+
+            style = ttk.Style(infoScreenMessages)
+            style.theme_use("clam")
+
+            tree["columns"] = (
+                "timestamp",
+                "mesajno",
+                "gonderenno",
+                "alicino",
+                "tur",
+                "mesaj_icerigi",
+            )
+            tree.column("timestamp", width=100, minwidth=100, anchor=tk.CENTER)
+            tree.column("mesajno", width=100, minwidth=100, anchor=tk.CENTER)
+            tree.column("gonderenno", width=200, minwidth=100, anchor=tk.CENTER)
+            tree.column("alicino", width=100, minwidth=100, anchor=tk.CENTER)
+            tree.column("tur", width=100, minwidth=100, anchor=tk.CENTER)
+            tree.column("mesaj_icerigi", width=500, minwidth=100, anchor=tk.CENTER)
+
+            tree.heading("timestamp", text="Gönderilme Zamanı", anchor=tk.CENTER)
+            tree.heading("mesajno", text="Mesaj Numarası", anchor=tk.CENTER)
+            tree.heading("gonderenno", text="Gönderici Numarası", anchor=tk.CENTER)
+            tree.heading("alicino", text="Alıcı Numarası", anchor=tk.CENTER)
+            tree.heading("tur", text="Gönderenin Türü", anchor=tk.CENTER)
+            tree.heading("mesaj_icerigi", text="Mesaj", anchor=tk.CENTER)
+
+            i = 0
+            for row in cursor:
+                tree.insert(
+                    "",
+                    i,
+                    text="",
+                    values=(row[0], row[1], row[2], row[3], row[4], row[5]),
+                )
+                i += 1
+
+            tree.pack()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Gelen Kutusu Okunurken Hata Oluştu: ", error)
+
 
 if __name__ == "__main__":
     # connect()
     connect = ConnectionToDatabase()
     connect.read()
-    connect.whoIsLoginName(12)
-    connect.deleteCourses(
-        12, "/Users/veliashvili/Desktop/yazlab1.3/metehan-belli-transkript.pdf"
-    )
+    connect.sendMessage(12, 11, "ogrenci", "Bu bir test mesajıdır.")
     connect.disconnectToDataBase()

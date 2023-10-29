@@ -1017,7 +1017,34 @@ def studentScreenCikisYap():
 
 
 def studentMesajGonder():
-    pass
+    global sendMessageScreen
+    sendMessageScreen = Toplevel()
+    sendMessageScreen.title("Mesaj Taslağı")
+    sendMessageScreen.geometry("300x200")
+
+    Label(sendMessageScreen, text=f"Gönderici: {username}").grid(row=0, columnspan=2)
+
+    Label(sendMessageScreen, text="Alıcı Okul No: ").grid(row=1, column=0)
+    aliciNoEntry = Entry(sendMessageScreen)
+    aliciNoEntry.grid(row=1, column=1)
+
+    Label(sendMessageScreen, text="Mesaj: ").grid(row=2, column=0)
+    mesajEntry = Entry(sendMessageScreen)
+    mesajEntry.grid(row=2, column=1)
+
+    studentSendMessageButton = Button(
+        sendMessageScreen,
+        text="GÖNDER",
+        command=lambda: sendMessageFromStudent(aliciNoEntry.get(), mesajEntry.get()),
+    )
+    studentSendMessageButton.grid(row=3, columnspan=2)
+
+
+def sendMessageFromStudent(aliciNo, mesaj_icerigi):
+    connect.connectToDataBase()
+    connect.sendMessage(username, aliciNo, "ogrenci", mesaj_icerigi)
+    connect.disconnectToDataBase()
+    sendMessageScreen.withdraw()
 
 
 def studentGelenKutusu():

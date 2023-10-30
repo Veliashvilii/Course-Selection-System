@@ -1278,6 +1278,48 @@ def sendMessageFromTeacher(aliciNo, mesaj_icerigi):
         ).grid(row=1, column=0)
 
 
+def readInterestToDatabase():
+    connect.connectToDataBase()
+    ilgiAlani = connect.readInterest(username)
+    connect.disconnectToDataBase()
+    return ilgiAlani
+
+
+def updateIlgiAlaniToDatabase(ilgiAlani):
+    connect.connectToDataBase()
+    connect.updateInterests(username, ilgiAlani)
+    connect.disconnectToDataBase()
+
+    global infoScreenUpdate
+    infoScreenUpdate = Toplevel()
+    infoScreenUpdate.title("İşleminiz Başarıyla Gerçekleştirildi!")
+    Label(infoScreenUpdate, text="İşleminiz Başarıyla Gerçekleştirildi!").grid(
+        row=0, column=0
+    )
+    Button(
+        infoScreenUpdate, text="Tamam", command=lambda: infoScreenUpdate.withdraw()
+    ).grid(row=1, column=0)
+    infoScreenUpdate.deiconify()
+
+
+def teacherIlgiAlaniYonet():
+    global ilgiAlanScreen
+    ilgiAlanScreen = Toplevel()
+    ilgiAlanScreen.title("İlgi Alanlarınız")
+    ilgiAlanScreen.geometry("350x200")
+    Label(ilgiAlanScreen, text=f"İlgi Alanlarım: {readInterestToDatabase()}").grid(
+        row=0, columnspan=2
+    )
+    Label(ilgiAlanScreen, text="İlgi Alanlarınızı Giriniz: ").grid(row=1, column=0)
+    ilgiAlanEntry = Entry(ilgiAlanScreen)
+    ilgiAlanEntry.grid(row=1, column=1)
+    ilgiAlanButton = Button(
+        ilgiAlanScreen,
+        text="ONAYLA",
+        command=lambda: updateIlgiAlaniToDatabase(ilgiAlanEntry.get()),
+    ).grid(row=2, columnspan=2)
+
+
 canvasTeacherScreen = Canvas(
     teacher_frame,
     bg="#FFFFFF",
@@ -1332,7 +1374,7 @@ teacherScreenIlgiButton = Button(
     borderwidth=0,
     text="İlgi Alanlarını Yönet",
     highlightthickness=0,
-    command=lambda: print("İlgi Alanlarını Yöneticem"),
+    command=lambda: teacherIlgiAlaniYonet(),
     relief="flat",
 )
 teacherScreenIlgiButton.place(x=250.0, y=184.0, width=248.0, height=50.0)

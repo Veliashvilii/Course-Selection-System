@@ -670,6 +670,36 @@ class ConnectionToDatabase:
         except (Exception, psycopg2.DatabaseError) as error:
             print("Gelen Kutusu Okunurken Hata Oluştu: ", error)
 
+    def readInterest(self, sicilNo):
+        try:
+            cursor = self.connection.cursor()
+            read_query = "SELECT ilgialani FROM hocalar WHERE sicilNo = %s"
+            cursor.execute(read_query, (sicilNo,))
+            data = cursor.fetchone()
+
+            if data:
+                ilgialani = data[0]
+                print(f"Sicil No: {sicilNo} için İlgi Alanı: {ilgialani}")
+                return ilgialani
+            else:
+                print(f"Sicil No {sicil_no} için kayıt bulunamadı.")
+                return None
+
+            cursor.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("İlgi Alanı Okunurken Bir hata ile Karşılaşıldı: ", error)
+
+    def updateInterests(self, sicilNo, ilgiAlani):
+        try:
+            cursor = self.connection.cursor()
+            update_query = "UPDATE hocalar SET ilgialani = %s WHERE sicilNo = %s"
+            cursor.execute(update_query, (ilgiAlani, sicilNo))
+            self.connection.commit()
+            cursor.close()
+            print(f"Sicil No {sicilNo} için ilgi alanları güncellendi.")
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("İlgi Alanlarınız Güncellenirken Hata ile Karşılaşıldı: ", error)
+
 
 if __name__ == "__main__":
     # connect()

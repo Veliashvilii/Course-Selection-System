@@ -1,7 +1,7 @@
 import psycopg2
 from config import config
 import tkinter as tk
-from tkinter import ttk, Toplevel
+from tkinter import ttk, Toplevel, Label, Entry, Button
 from PyPDF2 import PdfReader
 import re
 
@@ -705,7 +705,7 @@ class ConnectionToDatabase:
             global teacherDataScreen
             teacherDataScreen = Toplevel()
             teacherDataScreen.title("Öğretmen Bilgileri")
-            teacherDataScreen.geometry("604x228")
+            teacherDataScreen.geometry("604x300")
 
             cursor = self.connection.cursor()
             cursor.execute("SELECT * FROM hocalar")
@@ -746,6 +746,20 @@ class ConnectionToDatabase:
                 i += 1
 
             tree.pack()
+            label = Label(teacherDataScreen, text="Filtreleme: ")
+            label.place(x=100, y=250, anchor="nw")
+
+            entry = Entry(teacherDataScreen)
+            entry.place(x=200, y=250, anchor="nw")
+
+            button = Button(
+                teacherDataScreen,
+                text="FİLTRELE",
+                command=lambda: print("Filtreliyicem."),
+            )
+
+            button.place(x=400, y=250, anchor="nw")
+
         except (Exception, psycopg2.DatabaseError) as error:
             print("Hocalar Tablosu Okunurken Hata Oluştu: ", error)
 

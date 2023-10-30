@@ -1100,6 +1100,12 @@ def studentGelenKutusu():
     connect.disconnectToDataBase()
 
 
+def hocalariListele():
+    connect.connectToDataBase()
+    connect.readTeacherScreen()
+    connect.disconnectToDataBase()
+
+
 canvasStudentScreen = Canvas(
     student_frame,
     bg="#FFFFFF",
@@ -1176,7 +1182,7 @@ studentScreenHocaListeleButton = Button(
     borderwidth=0,
     text="Öğretmenleri Listele",
     highlightthickness=0,
-    command=lambda: print("Hocaları Listeliyicem"),
+    command=lambda: hocalariListele(),
     relief="flat",
 )
 studentScreenHocaListeleButton.place(x=559.0, y=364.0, width=248.0, height=50.0)

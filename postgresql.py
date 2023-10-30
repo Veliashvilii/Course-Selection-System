@@ -700,6 +700,55 @@ class ConnectionToDatabase:
         except (Exception, psycopg2.DatabaseError) as error:
             print("İlgi Alanlarınız Güncellenirken Hata ile Karşılaşıldı: ", error)
 
+    def readTeacherScreen(self):
+        try:
+            global teacherDataScreen
+            teacherDataScreen = Toplevel()
+            teacherDataScreen.title("Öğretmen Bilgileri")
+            teacherDataScreen.geometry("604x228")
+
+            cursor = self.connection.cursor()
+            cursor.execute("SELECT * FROM hocalar")
+
+            tree = ttk.Treeview(teacherDataScreen)
+            tree["show"] = "headings"
+
+            style = ttk.Style(teacherDataScreen)
+            style.theme_use("clam")
+
+            tree["columns"] = (
+                "sicilno",
+                "ad",
+                "soyad",
+                "kontenjan",
+                "ilgialani",
+            )
+            tree.column("sicilno", width=100, minwidth=100, anchor=tk.CENTER)
+            tree.column("ad", width=100, minwidth=100, anchor=tk.CENTER)
+            tree.column("soyad", width=100, minwidth=100, anchor=tk.CENTER)
+            tree.column("kontenjan", width=100, minwidth=100, anchor=tk.CENTER)
+            tree.column("ilgialani", width=200, minwidth=100, anchor=tk.CENTER)
+
+            tree.heading("sicilno", text="Hoca Okul No", anchor=tk.CENTER)
+            tree.heading("ad", text="Ad", anchor=tk.CENTER)
+            tree.heading("soyad", text="Soyad", anchor=tk.CENTER)
+            tree.heading("kontenjan", text="Kontenjan", anchor=tk.CENTER)
+            tree.heading("ilgialani", text="İlgi Alanı", anchor=tk.CENTER)
+
+            i = 0
+            for row in cursor:
+                tree.insert(
+                    "",
+                    i,
+                    text="",
+                    values=(row[0], row[1], row[2], row[3], row[4]),
+                )
+                i += 1
+
+            tree.pack()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Hocalar Tablosu Okunurken Hata Oluştu: ", error)
+
 
 if __name__ == "__main__":
     # connect()

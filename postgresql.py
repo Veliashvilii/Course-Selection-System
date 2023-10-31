@@ -793,9 +793,19 @@ class ConnectionToDatabase:
 
             self.disconnectToDataBase()
 
+    def requests(self, gonderenNo, aliciNo, dersAdi, talepSonuc):
+        try:
+            cursor = self.connection.cursor()
+            request_query = "INSERT INTO talepler (gonderenNo, aliciNo, dersIsmi, talepSonuc) VALUES (%s, %s, %s, %s)"
+            cursor.execute(request_query, (gonderenNo, aliciNo, dersAdi, talepSonuc))
+            self.connection.commit()
+            cursor.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Öğrencinin Talebi İletilirken Bir Hata ile Karşılaşıldı: ", error)
+
 
 if __name__ == "__main__":
     # connect()
     connect = ConnectionToDatabase()
-    connect.filterTeacher("Yapay Zeka")
+    connect.requests(12, 11, "Araştırma Projesi", "Değerlendirmede")
     connect.disconnectToDataBase()

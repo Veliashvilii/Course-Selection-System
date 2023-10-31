@@ -773,7 +773,6 @@ class ConnectionToDatabase:
             self.showAllTeachers()
         else:
             self.connectToDataBase()
-            # Önce mevcut tabloyu temizle
             for item in self.treeTeacher.get_children():
                 self.treeTeacher.delete(item)
 
@@ -802,6 +801,74 @@ class ConnectionToDatabase:
             cursor.close()
         except (Exception, psycopg2.DatabaseError) as error:
             print("Öğrencinin Talebi İletilirken Bir Hata ile Karşılaşıldı: ", error)
+
+    def readRequests(self, aliciNo):
+        try:
+            global talepScreen
+            talepScreen = Toplevel()
+            talepScreen.title("Talep Bilgileri")
+            talepScreen.geometry("753x225")
+
+            tree = ttk.Treeview(talepScreen)
+            tree["show"] = "headings"
+
+            style = ttk.Style(talepScreen)
+            style.theme_use("clam")
+
+            cursor = self.connection.cursor()
+            sql_query = """
+            SELECT ogrenciler.ad, ogrenciler.soyad, talepler.gondermezamani, talepler.gonderenno,
+            talepler.dersismi, talepler.talepsonuc 
+            FROM talepler
+            JOIN ogrenciler ON talepler.gonderenno = ogrenciler.sicilno
+            WHERE talepler.alicino = %s;
+            """
+
+            cursor.execute(sql_query, (aliciNo,))
+
+            tree["columns"] = (
+                "ad",
+                "soyad",
+                "timestamp",
+                "gonderenno",
+                "dersismi",
+                "talepsonuc",
+            )
+            tree.column("ad", width=100, minwidth=100, anchor=tk.CENTER)
+            tree.column("soyad", width=100, minwidth=100, anchor=tk.CENTER)
+            tree.column("timestamp", width=150, minwidth=100, anchor=tk.CENTER)
+            tree.column("gonderenno", width=50, minwidth=100, anchor=tk.CENTER)
+            tree.column("dersismi", width=150, minwidth=100, anchor=tk.CENTER)
+            tree.column("talepsonuc", width=200, minwidth=100, anchor=tk.CENTER)
+
+            tree.heading("ad", text="Ad", anchor=tk.CENTER)
+            tree.heading("soyad", text="Soyad", anchor=tk.CENTER)
+            tree.heading("timestamp", text="Gönderilme Zamanı", anchor=tk.CENTER)
+            tree.heading("gonderenno", text="Gönderici Numarası", anchor=tk.CENTER)
+            tree.heading("dersismi", text="Ders Adı", anchor=tk.CENTER)
+            tree.heading("talepsonuc", text="Talep Durumu", anchor=tk.CENTER)
+
+            i = 0
+            for row in cursor:
+                tree.insert(
+                    "",
+                    i,
+                    text="",
+                    values=(
+                        row[0],
+                        row[1],
+                        row[2],
+                        row[3],
+                        row[4],
+                        row[5],
+                    ),
+                )
+                i += 1
+
+            tree.pack()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Talepler Listelenirken Hata Oluştu: ", error)
 
 
 if __name__ == "__main__":

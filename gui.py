@@ -1120,7 +1120,19 @@ def dersTalebiEkrani():
         text="ONAYLA",
         command=lambda: ogrenciDersTalebi(entryHocaNo.get(), entryDersAdi.get()),
     )
-    dersTalebiButton.grid(row=3, columnspan=2)
+    dersTalebiButton.grid(row=3, column=1)
+    dersTaleplerimButton = Button(
+        dersTalebiScreen,
+        text="TALEPLERİM",
+        command=lambda: studentTaleplerim(),
+    )
+    dersTaleplerimButton.grid(row=3, column=0)
+
+
+def studentTaleplerim():
+    connect.connectToDataBase()
+    connect.oldRequests(username)
+    connect.disconnectToDataBase()
 
 
 def studentGelenKutusu():

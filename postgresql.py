@@ -870,6 +870,116 @@ class ConnectionToDatabase:
         except (Exception, psycopg2.DatabaseError) as error:
             print("Talepler Listelenirken Hata Oluştu: ", error)
 
+    def oldRequests(self, gonderenNo):
+        try:
+            global eskiTalepScreen
+            eskiTalepScreen = Toplevel()
+            eskiTalepScreen.title("Talep Bilgileri")
+            eskiTalepScreen.geometry("818x300")  # y = 225
+
+            tree = ttk.Treeview(eskiTalepScreen)
+            tree["show"] = "headings"
+
+            style = ttk.Style(eskiTalepScreen)
+            style.theme_use("clam")
+
+            cursor = self.connection.cursor()
+            sql_query = """
+            SELECT hocalar.ad, hocalar.soyad, talepler.gondermezamani, talepler.talepno ,talepler.alicino,
+            talepler.dersismi, talepler.talepsonuc 
+            FROM talepler
+            JOIN hocalar ON talepler.alicino = hocalar.sicilno
+            WHERE talepler.gonderenno = %s;
+            """
+            cursor.execute(sql_query, (gonderenNo,))
+
+            tree["columns"] = (
+                "ad",
+                "soyad",
+                "timestamp",
+                "talepno",
+                "alicino",
+                "dersismi",
+                "talepsonuc",
+            )
+            tree.column("ad", width=100, minwidth=100, anchor=tk.CENTER)
+            tree.column("soyad", width=100, minwidth=100, anchor=tk.CENTER)
+            tree.column("timestamp", width=150, minwidth=100, anchor=tk.CENTER)
+            tree.column("talepno", width=50, minwidth=100, anchor=tk.CENTER)
+            tree.column("alicino", width=50, minwidth=100, anchor=tk.CENTER)
+            tree.column("dersismi", width=150, minwidth=100, anchor=tk.CENTER)
+            tree.column("talepsonuc", width=215, minwidth=100, anchor=tk.CENTER)
+
+            tree.heading("ad", text="Ad", anchor=tk.CENTER)
+            tree.heading("soyad", text="Soyad", anchor=tk.CENTER)
+            tree.heading("timestamp", text="Gönderilme Zamanı", anchor=tk.CENTER)
+            tree.heading("talepno", text="Talep Numarası", anchor=tk.CENTER)
+            tree.heading("alicino", text="Alıcı Numarası", anchor=tk.CENTER)
+            tree.heading("dersismi", text="Ders Adı", anchor=tk.CENTER)
+            tree.heading("talepsonuc", text="Talep Durumu", anchor=tk.CENTER)
+
+            i = 0
+            for row in cursor:
+                tree.insert(
+                    "",
+                    i,
+                    text="",
+                    values=(
+                        row[0],
+                        row[1],
+                        row[2],
+                        row[3],
+                        row[4],
+                        row[5],
+                        row[6],
+                    ),
+                )
+                i += 1
+
+            tree.grid(row=0, columnspan=7)
+            cursor.close()
+
+            Label(eskiTalepScreen, text="Talep Numarası: ").grid(
+                row=1, column=0, sticky="w"
+            )
+            entrySilinicekNo = Entry(eskiTalepScreen)
+            entrySilinicekNo.grid(row=1, column=1, sticky="w")
+
+            entrySilinecekNoButton = Button(
+                eskiTalepScreen,
+                text="SİL",
+                command=lambda: self.deleteTalep(entrySilinicekNo.get()),
+            )
+            entrySilinecekNoButton.grid(row=1, column=2, sticky="w")
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Öğrencinin Talepleri Listelenirken Hata Oluştu: ", error)
+
+    def deleteTalep(self, talepNo):
+        try:
+            self.connectToDataBase()
+            cursor = self.connection.cursor()
+            delete_query = "DELETE FROM talepler WHERE talepno=%s"
+            cursor.execute(delete_query, (talepNo,))
+            self.connection.commit()
+            cursor.close()
+            self.disconnectToDataBase()
+
+            global infoScreenDelete
+            infoScreenDelete = Toplevel()
+            infoScreenDelete.title("İşlem Başarılı!")
+            Label(infoScreenDelete, text="Başarıyla Talebiniz Silindi!").grid(
+                row=0, column=0
+            )
+            Button(
+                infoScreenDelete,
+                text="Tamam",
+                command=lambda: infoScreenDelete.withdraw(),
+            ).grid(row=1, column=0)
+            infoScreenDelete.deiconify()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Talebiniz Silinirken Hata Oluştu: ", error)
+
 
 if __name__ == "__main__":
     connect = ConnectionToDatabase()

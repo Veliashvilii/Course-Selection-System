@@ -9,6 +9,7 @@ import re
 class ConnectionToDatabase:
     def __init__(self):
         super().__init__()
+        self.treeTeacher = None
 
         try:
             params = config()
@@ -707,45 +708,6 @@ class ConnectionToDatabase:
             teacherDataScreen.title("Öğretmen Bilgileri")
             teacherDataScreen.geometry("604x300")
 
-            cursor = self.connection.cursor()
-            cursor.execute("SELECT * FROM hocalar")
-
-            tree = ttk.Treeview(teacherDataScreen)
-            tree["show"] = "headings"
-
-            style = ttk.Style(teacherDataScreen)
-            style.theme_use("clam")
-
-            tree["columns"] = (
-                "sicilno",
-                "ad",
-                "soyad",
-                "kontenjan",
-                "ilgialani",
-            )
-            tree.column("sicilno", width=100, minwidth=100, anchor=tk.CENTER)
-            tree.column("ad", width=100, minwidth=100, anchor=tk.CENTER)
-            tree.column("soyad", width=100, minwidth=100, anchor=tk.CENTER)
-            tree.column("kontenjan", width=100, minwidth=100, anchor=tk.CENTER)
-            tree.column("ilgialani", width=200, minwidth=100, anchor=tk.CENTER)
-
-            tree.heading("sicilno", text="Hoca Okul No", anchor=tk.CENTER)
-            tree.heading("ad", text="Ad", anchor=tk.CENTER)
-            tree.heading("soyad", text="Soyad", anchor=tk.CENTER)
-            tree.heading("kontenjan", text="Kontenjan", anchor=tk.CENTER)
-            tree.heading("ilgialani", text="İlgi Alanı", anchor=tk.CENTER)
-
-            i = 0
-            for row in cursor:
-                tree.insert(
-                    "",
-                    i,
-                    text="",
-                    values=(row[0], row[1], row[2], row[3], row[4]),
-                )
-                i += 1
-
-            tree.pack()
             label = Label(teacherDataScreen, text="Filtreleme: ")
             label.place(x=100, y=250, anchor="nw")
 
@@ -755,18 +717,85 @@ class ConnectionToDatabase:
             button = Button(
                 teacherDataScreen,
                 text="FİLTRELE",
-                command=lambda: print("Filtreliyicem."),
+                command=lambda: self.filterTeacher(entry.get()),
             )
-
             button.place(x=400, y=250, anchor="nw")
-
+            self.showAllTeachers()
         except (Exception, psycopg2.DatabaseError) as error:
             print("Hocalar Tablosu Okunurken Hata Oluştu: ", error)
+
+    def showAllTeachers(self):
+        self.connectToDataBase()
+        cursor = self.connection.cursor()
+        cursor.execute("SELECT * FROM hocalar")
+
+        self.treeTeacher = ttk.Treeview(teacherDataScreen)
+        self.treeTeacher["show"] = "headings"
+
+        style = ttk.Style(teacherDataScreen)
+        style.theme_use("clam")
+
+        self.treeTeacher["columns"] = (
+            "sicilno",
+            "ad",
+            "soyad",
+            "kontenjan",
+            "ilgialani",
+        )
+        self.treeTeacher.column("sicilno", width=100, minwidth=100, anchor=tk.CENTER)
+        self.treeTeacher.column("ad", width=100, minwidth=100, anchor=tk.CENTER)
+        self.treeTeacher.column("soyad", width=100, minwidth=100, anchor=tk.CENTER)
+        self.treeTeacher.column("kontenjan", width=100, minwidth=100, anchor=tk.CENTER)
+        self.treeTeacher.column("ilgialani", width=200, minwidth=100, anchor=tk.CENTER)
+
+        self.treeTeacher.heading("sicilno", text="Hoca Okul No", anchor=tk.CENTER)
+        self.treeTeacher.heading("ad", text="Ad", anchor=tk.CENTER)
+        self.treeTeacher.heading("soyad", text="Soyad", anchor=tk.CENTER)
+        self.treeTeacher.heading("kontenjan", text="Kontenjan", anchor=tk.CENTER)
+        self.treeTeacher.heading("ilgialani", text="İlgi Alanı", anchor=tk.CENTER)
+
+        i = 0
+        for row in cursor:
+            self.treeTeacher.insert(
+                "",
+                i,
+                text="",
+                values=(row[0], row[1], row[2], row[3], row[4]),
+            )
+            i += 1
+
+        self.treeTeacher.pack()
+        self.disconnectToDataBase()
+
+    def filterTeacher(self, ilgialani):
+        if ilgialani == "":
+            # Başlangıç halini göstermem lazım!
+            self.showAllTeachers()
+        else:
+            self.connectToDataBase()
+            # Önce mevcut tabloyu temizle
+            for item in self.treeTeacher.get_children():
+                self.treeTeacher.delete(item)
+
+            cursor = self.connection.cursor()
+            filter_query = "SELECT * FROM hocalar WHERE ilgialani= %s"
+            cursor.execute(filter_query, (ilgialani,))
+
+            i = 0
+            for row in cursor:
+                self.treeTeacher.insert(
+                    "",
+                    i,
+                    text="",
+                    values=(row[0], row[1], row[2], row[3], row[4]),
+                )
+                i += 1
+
+            self.disconnectToDataBase()
 
 
 if __name__ == "__main__":
     # connect()
     connect = ConnectionToDatabase()
-    connect.read()
-    connect.sendMessage(12, 11, "ogrenci", "Bu bir test mesajıdır.")
+    connect.filterTeacher("Yapay Zeka")
     connect.disconnectToDataBase()

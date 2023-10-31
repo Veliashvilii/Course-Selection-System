@@ -805,7 +805,6 @@ class ConnectionToDatabase:
 
 
 if __name__ == "__main__":
-    # connect()
     connect = ConnectionToDatabase()
     connect.requests(12, 11, "Araştırma Projesi", "Değerlendirmede")
     connect.disconnectToDataBase()

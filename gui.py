@@ -1094,6 +1094,35 @@ def sendMessageFromStudent(aliciNo, mesaj_icerigi):
         ).grid(row=1, column=0)
 
 
+def dersTalebiEkrani():
+    global dersTalebiScreen
+    dersTalebiScreen = Toplevel()
+    dersTalebiScreen.title("Lütfen Ders Talebinizi Giriniz!")
+    dersTalebiScreen.geometry("400x140")
+
+    Label(dersTalebiScreen, text=f"Okul Numaranız {username}").grid(row=0, columnspan=2)
+    Label(dersTalebiScreen, text="Öğretmeninizin Okul Numarası ", padx=5).grid(
+        row=1, column=0
+    )
+
+    entryHocaNo = Entry(dersTalebiScreen)
+    entryHocaNo.grid(row=1, column=1)
+
+    Label(dersTalebiScreen, text="Almak İstediğiniz Dersi Giriniz ", padx=5).grid(
+        row=2, column=0
+    )
+
+    entryDersAdi = Entry(dersTalebiScreen)
+    entryDersAdi.grid(row=2, column=1)
+
+    dersTalebiButton = Button(
+        dersTalebiScreen,
+        text="ONAYLA",
+        command=lambda: ogrenciDersTalebi(entryHocaNo.get(), entryDersAdi.get()),
+    )
+    dersTalebiButton.grid(row=3, columnspan=2)
+
+
 def studentGelenKutusu():
     connect.connectToDataBase()
     connect.readMessage(username)
@@ -1103,6 +1132,12 @@ def studentGelenKutusu():
 def hocalariListele():
     connect.connectToDataBase()
     connect.readTeacherScreen()
+    connect.disconnectToDataBase()
+
+
+def ogrenciDersTalebi(aliciNo, dersAdi):
+    connect.connectToDataBase()
+    connect.requests(username, aliciNo, dersAdi, "Değerlendirmede")
     connect.disconnectToDataBase()
 
 
@@ -1172,7 +1207,7 @@ studentScreenDersTalebiButton = Button(
     borderwidth=0,
     text="Ders Talebi",
     highlightthickness=0,
-    command=lambda: print("Ders Talep Edicem"),
+    command=lambda: dersTalebiEkrani(),
     relief="flat",
 )
 studentScreenDersTalebiButton.place(x=559.0, y=274.0, width=248.0, height=50.0)

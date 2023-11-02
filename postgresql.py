@@ -1000,6 +1000,108 @@ class ConnectionToDatabase:
             print("Talep Reddedilirken Hata ile Karşılaşıldı: ", error)
         self.disconnectToDataBase()
 
+    def lessons(self, username):
+        try:
+            global talepScreen
+            talepScreen = Toplevel()
+            talepScreen.title("Alınan Ders Bilgileri")
+            talepScreen.geometry("553x225")
+
+            tree = ttk.Treeview(talepScreen)
+            tree["show"] = "headings"
+
+            style = ttk.Style(talepScreen)
+            style.theme_use("clam")
+
+            cursor = self.connection.cursor()
+
+            sql_query = """
+            SELECT hocalar.sicilno, hocalar.ad, hocalar.soyad,
+            talepler.dersismi
+            FROM talepler
+            JOIN hocalar ON talepler.alicino = hocalar.sicilno
+            WHERE talepler.gonderenno = %s AND talepler.talepsonuc = %s;
+            """
+
+            cursor.execute(sql_query, (username, "Onaylandı"))
+
+            tree["columns"] = (
+                "sicilno",
+                "ad",
+                "soyad",
+                "dersismi",
+            )
+            tree.column("sicilno", width=150, minwidth=100, anchor=tk.CENTER)
+            tree.column("ad", width=100, minwidth=100, anchor=tk.CENTER)
+            tree.column("soyad", width=100, minwidth=100, anchor=tk.CENTER)
+            tree.column("dersismi", width=200, minwidth=100, anchor=tk.CENTER)
+
+            tree.heading("sicilno", text="Öğretmen Okul No", anchor=tk.CENTER)
+            tree.heading("ad", text="Ad", anchor=tk.CENTER)
+            tree.heading("soyad", text="Soyad", anchor=tk.CENTER)
+            tree.heading("dersismi", text="Ders Adı", anchor=tk.CENTER)
+
+            i = 0
+            for row in cursor:
+                tree.insert(
+                    "",
+                    i,
+                    text="",
+                    values=(
+                        row[0],
+                        row[1],
+                        row[2],
+                        row[3],
+                    ),
+                )
+                i += 1
+
+            tree.pack()
+            cursor.close()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Dersleriniz Okunurken Hata ile Karşılaşıldı: ", error)
+
+    def insertLessons(self, username):
+        try:
+            cursor = self.connection.cursor()
+            cursor2 = self.connection.cursor()
+
+            sql_query = """
+            SELECT hocalar.sicilno, hocalar.ad, hocalar.soyad,
+            talepler.dersismi
+            FROM talepler
+            JOIN hocalar ON talepler.alicino = hocalar.sicilno
+            WHERE talepler.gonderenno = %s AND talepler.talepsonuc = %s;"""
+
+            cursor.execute(sql_query, (username, "Onaylandı"))
+            i = 0
+            for row in cursor:
+                insert_query = """
+                INSERT INTO alinandersler (sicilno, dersadi, ogretmenad, ogretmensoyad)
+                VALUES (%s, %s, %s, %s)
+                """
+                insert_data = (row[0], row[3], row[1], row[2])
+
+                cursor2.execute(insert_query, insert_data)
+                self.connection.commit()
+                i += 1
+
+            cursor.close()
+            cursor2.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Ekleme Yapılırken Hata ile Karşılaşıldı: ", error)
+
+    def deleteLessons(self, username):
+        try:
+            cursor = self.connection.cursor()
+            delete_query = "DELETE FROM alinandersler WHERE sicilno = %s"
+            cursor.execute(delete_query, (username,))
+            self.connection.commit()
+            cursor.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Dersleriniz Silinirken Hata ile Karşılaşıldı: ", error)
+
     def oldRequests(self, gonderenNo):
         try:
             global eskiTalepScreen
@@ -1110,8 +1212,18 @@ class ConnectionToDatabase:
         except (Exception, psycopg2.DatabaseError) as error:
             print("Talebiniz Silinirken Hata Oluştu: ", error)
 
+    def deleteRequestAll(self):
+        try:
+            cursor = self.connection.cursor()
+            delete_query = "DELETE FROM alinandersler"
+            cursor.execute(delete_query)
+            self.connection.commit()
+            cursor.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Silme İşlemi Sırasında hata ile Karşılaşıldı: ", error)
+
 
 if __name__ == "__main__":
     connect = ConnectionToDatabase()
-    connect.requests(12, 11, "Araştırma Projesi", "Değerlendirmede")
+    connect.deleteLessons(25)
     connect.disconnectToDataBase()

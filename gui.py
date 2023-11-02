@@ -1135,11 +1135,24 @@ def dersTalebiEkrani():
         command=lambda: studentTaleplerim(),
     )
     dersTaleplerimButton.grid(row=3, column=0)
+    derslerimButton = Button(
+        dersTalebiScreen,
+        text="DERSLERİM",
+        command=lambda: studentDerslerim(),
+    )
+    derslerimButton.grid(row=4, columnspan=2)
 
 
 def studentTaleplerim():
     connect.connectToDataBase()
     connect.oldRequests(username)
+    connect.disconnectToDataBase()
+
+
+def studentDerslerim():
+    connect.connectToDataBase()
+    connect.lessons(username)
+    connect.insertLessons(username)
     connect.disconnectToDataBase()
 
 

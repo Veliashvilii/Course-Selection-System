@@ -807,7 +807,7 @@ class ConnectionToDatabase:
             global talepScreen
             talepScreen = Toplevel()
             talepScreen.title("Talep Bilgileri")
-            talepScreen.geometry("753x225")
+            talepScreen.geometry("853x350")
 
             tree = ttk.Treeview(talepScreen)
             tree["show"] = "headings"
@@ -817,7 +817,7 @@ class ConnectionToDatabase:
 
             cursor = self.connection.cursor()
             sql_query = """
-            SELECT ogrenciler.ad, ogrenciler.soyad, talepler.gondermezamani, talepler.gonderenno,
+            SELECT ogrenciler.ad, ogrenciler.soyad, talepler.gondermezamani, talepler.talepno ,talepler.gonderenno,
             talepler.dersismi, talepler.talepsonuc 
             FROM talepler
             JOIN ogrenciler ON talepler.gonderenno = ogrenciler.sicilno
@@ -830,6 +830,7 @@ class ConnectionToDatabase:
                 "ad",
                 "soyad",
                 "timestamp",
+                "talepno",
                 "gonderenno",
                 "dersismi",
                 "talepsonuc",
@@ -837,13 +838,15 @@ class ConnectionToDatabase:
             tree.column("ad", width=100, minwidth=100, anchor=tk.CENTER)
             tree.column("soyad", width=100, minwidth=100, anchor=tk.CENTER)
             tree.column("timestamp", width=150, minwidth=100, anchor=tk.CENTER)
+            tree.column("talepno", width=50, minwidth=100, anchor=tk.CENTER)
             tree.column("gonderenno", width=50, minwidth=100, anchor=tk.CENTER)
             tree.column("dersismi", width=150, minwidth=100, anchor=tk.CENTER)
-            tree.column("talepsonuc", width=200, minwidth=100, anchor=tk.CENTER)
+            tree.column("talepsonuc", width=250, minwidth=100, anchor=tk.CENTER)
 
             tree.heading("ad", text="Ad", anchor=tk.CENTER)
             tree.heading("soyad", text="Soyad", anchor=tk.CENTER)
             tree.heading("timestamp", text="Gönderilme Zamanı", anchor=tk.CENTER)
+            tree.heading("talepno", text="Talep Numarası", anchor=tk.CENTER)
             tree.heading("gonderenno", text="Gönderici Numarası", anchor=tk.CENTER)
             tree.heading("dersismi", text="Ders Adı", anchor=tk.CENTER)
             tree.heading("talepsonuc", text="Talep Durumu", anchor=tk.CENTER)
@@ -861,14 +864,141 @@ class ConnectionToDatabase:
                         row[3],
                         row[4],
                         row[5],
+                        row[6],
                     ),
                 )
                 i += 1
 
-            tree.pack()
+            tree.grid(row=0, columnspan=7)
+
+            Label(talepScreen, text="Talep Numarası: ").grid(row=1, column=0)
+            requestEntry = Entry(talepScreen)
+            requestEntry.grid(row=1, column=1)
+            Button(
+                talepScreen,
+                text="ONAYLA",
+                command=lambda: self.requestAccept(requestEntry.get()),
+            ).grid(row=1, column=2)
+            Button(
+                talepScreen,
+                text="REDDET",
+                command=lambda: self.requestReject(requestEntry.get()),
+            ).grid(row=1, column=3)
 
         except (Exception, psycopg2.DatabaseError) as error:
             print("Talepler Listelenirken Hata Oluştu: ", error)
+
+    def requestAccept(self, talepno):
+        self.connectToDataBase()
+        try:
+            cursor = self.connection.cursor()
+            control_query = "SELECT kontenjan FROM hocalar WHERE sicilno = (SELECT alicino FROM talepler WHERE talepno = %s)"
+            cursor.execute(control_query, (talepno,))
+            resultKontenjan = cursor.fetchone()
+
+            global infoScreenAccept
+            infoScreenAccept = Toplevel()
+
+            if resultKontenjan and resultKontenjan[0] > 0:
+                cursor = self.connection.cursor()
+                accept_query = "UPDATE talepler SET talepsonuc= %s WHERE talepno = %s AND talepsonuc = %s"
+                cursor.execute(accept_query, ("Onaylandı", talepno, "Değerlendirmede"))
+                self.connection.commit()
+                cursor.close()
+
+                reduce_kontenjan_query = "UPDATE hocalar SET kontenjan = kontenjan - 1 WHERE sicilno = (SELECT alicino FROM talepler WHERE talepno = %s)"
+                cursor = self.connection.cursor()
+                cursor.execute(reduce_kontenjan_query, (talepno,))
+                self.connection.commit()
+                cursor.close()
+
+                cursor = self.connection.cursor()
+                read_query = "SELECT talepsonuc FROM talepler WHERE talepno = %s"
+                cursor.execute(read_query, (talepno,))
+                result = cursor.fetchone()
+                cursor.close()
+
+                if result and result[0] == "Onaylandı":
+                    infoScreenAccept.title("Talep Kabul Edildi!")
+                    Label(
+                        infoScreenAccept, text="Talebi Başarıyla Kabul Ettiniz!"
+                    ).grid(row=0, column=0)
+                    Button(
+                        infoScreenAccept,
+                        text="Tamam",
+                        command=lambda: infoScreenAccept.withdraw(),
+                    ).grid(row=1, column=0)
+                    infoScreenAccept.deiconify()
+                else:
+                    infoScreenAccept.title("Talep Kabul Edilirken Hata Oluştu!")
+                    Label(
+                        infoScreenAccept,
+                        text="Lütfen Geçerli Bir Talep Numarası Giriniz!",
+                    ).grid(row=0, column=0)
+                    Button(
+                        infoScreenAccept,
+                        text="Tamam",
+                        command=lambda: infoScreenAccept.withdraw(),
+                    ).grid(row=1, column=0)
+                    infoScreenAccept.deiconify()
+            else:
+                infoScreenAccept.title("Kontenjan Yetersiz!")
+                Label(
+                    infoScreenAccept,
+                    text="Kontenjanınız Dolu! Lütfen Yöneticiniz ile İletişime Geçiniz!",
+                ).grid(row=0, column=0)
+                Button(
+                    infoScreenAccept,
+                    text="Tamam",
+                    command=lambda: infoScreenAccept.withdraw(),
+                ).grid(row=1, column=0)
+                infoScreenAccept.deiconify()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Talep Kabul Edilirken Hata ile Karşılaşıldı: ", error)
+        self.disconnectToDataBase()
+
+    def requestReject(self, talepno):
+        self.connectToDataBase()
+        try:
+            cursor = self.connection.cursor()
+            reject_query = "UPDATE talepler SET talepsonuc = %s WHERE talepno = %s AND talepsonuc = %s"
+            cursor.execute(reject_query, ("Reddedildi", talepno, "Değerlendirmede"))
+            self.connection.commit()
+            cursor.close()
+
+            cursor = self.connection.cursor()
+            read_query = "SELECT talepsonuc FROM talepler WHERE talepno = %s"
+            cursor.execute(read_query, (talepno,))
+            result = cursor.fetchone()
+
+            global infoScreenReject
+            infoScreenReject = Toplevel()
+            if result and result[0] == "Reddedildi":
+                infoScreenReject.title("Talep Reddedildi!")
+                Label(infoScreenReject, text="Talebi Başarıyla Reddettiniz!").grid(
+                    row=0, column=0
+                )
+                Button(
+                    infoScreenReject,
+                    text="Tamam",
+                    command=lambda: infoScreenReject.withdraw(),
+                ).grid(row=1, column=0)
+                infoScreenReject.deiconify()
+            else:
+                infoScreenReject.title("Reddedilirken Hata Oluştu!")
+                Label(
+                    infoScreenReject, text="Lütfen Geçerli Bir Talep Numarası Giriniz!"
+                ).grid(row=0, column=0)
+                Button(
+                    infoScreenReject,
+                    text="Tamam",
+                    command=lambda: infoScreenReject.withdraw(),
+                ).grid(row=1, column=0)
+                infoScreenReject.deiconify()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Talep Reddedilirken Hata ile Karşılaşıldı: ", error)
+        self.disconnectToDataBase()
 
     def oldRequests(self, gonderenNo):
         try:
@@ -959,8 +1089,8 @@ class ConnectionToDatabase:
         try:
             self.connectToDataBase()
             cursor = self.connection.cursor()
-            delete_query = "DELETE FROM talepler WHERE talepno=%s"
-            cursor.execute(delete_query, (talepNo,))
+            delete_query = "DELETE FROM talepler WHERE talepno=%s AND talepsonuc=%s"
+            cursor.execute(delete_query, (talepNo, "Değerlendirmede"))
             self.connection.commit()
             cursor.close()
             self.disconnectToDataBase()

@@ -31,7 +31,9 @@ global connect
 connect = postgresql.ConnectionToDatabase()
 
 global mesajKarakterSayisi
-mesajKarakterSayisiGuncel = 5
+mesajKarakterSayisiGuncel = 25
+global farkliHocaSayisi
+farkliHocaSayisi = 1
 
 
 def relative_to_assets_login(path: str) -> Path:
@@ -750,18 +752,18 @@ AdminScreenButton1 = Button(
 )
 AdminScreenButton1.place(x=1182.0, y=193.0, width=150.0, height=31.0)
 
-loginScreenButton2Image = PhotoImage(
-    file=relative_to_assets_admin("loginScreenButton2.png")
+adminScreenButton2Image = PhotoImage(
+    file=relative_to_assets_admin("adminScreenButtonHocaSayisi.png")
 )
-loginScreenButton2 = Button(
+adminScreenButtonHocaSayisi = Button(
     admin_frame,
-    image=loginScreenButton2Image,
+    image=adminScreenButton2Image,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: print("button_2 clicked"),
+    command=lambda: kacHoca(entryAdminScreenKacHoca.get()),
     relief="flat",
 )
-loginScreenButton2.place(x=1134.0, y=323.0, width=200.0, height=31.0)
+adminScreenButtonHocaSayisi.place(x=1134.0, y=323.0, width=200.0, height=31.0)
 
 adminScreenButton3Image = PhotoImage(
     file=relative_to_assets_admin("adminScreenButton3.png")
@@ -1030,6 +1032,12 @@ adminScreenMeteLabel = Label(
     admin_frame, text="METEHAN BELLİ", bg="#F1EEEE", fg="#000000", font=("Inter", 20)
 )
 adminScreenMeteLabel.place(x=1168, y=725, anchor="nw")
+
+
+def kacHoca(hocaSayi):
+    farkliHocaSayisi = hocaSayi
+    print(f"Kaç Hoca Olacak {farkliHocaSayisi}")
+
 
 ##################### ADMIN SCREEN END ############################
 

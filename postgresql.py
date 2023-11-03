@@ -1294,7 +1294,7 @@ class ConnectionToDatabase:
             global dersTalebiHocaScreen
             dersTalebiHocaScreen = Toplevel()
             dersTalebiHocaScreen.title("Lütfen Öğrencinizi Talep Ediniz!")
-            dersTalebiHocaScreen.geometry("803x800")
+            dersTalebiHocaScreen.geometry("803x555")
 
             tree = ttk.Treeview(dersTalebiHocaScreen)
             tree["show"] = "headings"
@@ -1334,8 +1334,11 @@ class ConnectionToDatabase:
                 i += 1
             tree.grid(row=0, columnspan=5)
 
-            Label(dersTalebiHocaScreen, text="Öğrenci Numarası").grid(row=1, column=0)
+            Label(dersTalebiHocaScreen, text="Öğrencinin Ders Bilgileri").grid(
+                row=1, column=0
+            )
             combo = ttk.Combobox(dersTalebiHocaScreen, values=data)
+            combo.set("Öğrenci Numarası")
             combo.grid(row=1, column=1)
             dersBilgiButton = Button(
                 dersTalebiHocaScreen,
@@ -1344,13 +1347,17 @@ class ConnectionToDatabase:
             )
             dersBilgiButton.grid(row=1, column=2)
 
-            Label(dersTalebiHocaScreen, text="Öğrenci Numarası").grid(row=3, column=0)
+            Label(dersTalebiHocaScreen, text="Öğrenciye Ders Talebi Yollama").grid(
+                row=3, column=0
+            )
             combo2 = ttk.Combobox(dersTalebiHocaScreen, values=data)
+            combo2.set("Öğrenci Numarası")
             combo2.grid(row=3, column=1)
 
             combo3 = ttk.Combobox(
                 dersTalebiHocaScreen, values=["Araştırma Projesi", "Bitirme Projesi"]
             )
+            combo3.set("Dersin Adı")
             combo3.grid(row=3, column=2)
             talepButton = Button(
                 dersTalebiHocaScreen,
@@ -1404,7 +1411,7 @@ class ConnectionToDatabase:
                     ),
                 )
                 i += 1
-                tree2.grid(row=2, columnspan=3)
+                tree2.grid(row=2, columnspan=5)
                 cursor.close()
 
         except (Exception, psycopg2.DatabaseError) as error:

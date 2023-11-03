@@ -793,6 +793,7 @@ class ConnectionToDatabase:
             self.disconnectToDataBase()
 
     def requests(self, gonderenNo, aliciNo, dersAdi, talepSonuc):
+        self.connectToDataBase()
         try:
             cursor = self.connection.cursor()
             request_query = "INSERT INTO talepler (gonderenNo, aliciNo, dersIsmi, talepSonuc) VALUES (%s, %s, %s, %s)"
@@ -801,6 +802,7 @@ class ConnectionToDatabase:
             cursor.close()
         except (Exception, psycopg2.DatabaseError) as error:
             print("Öğrencinin Talebi İletilirken Bir Hata ile Karşılaşıldı: ", error)
+        self.disconnectToDataBase()
 
     def readRequests(self, aliciNo):
         try:
@@ -1222,8 +1224,198 @@ class ConnectionToDatabase:
         except (Exception, psycopg2.DatabaseError) as error:
             print("Silme İşlemi Sırasında hata ile Karşılaşıldı: ", error)
 
+    # Öğrenci Listele
+    def showFreeStudents(self):
+        try:
+            cursor = self.connection.cursor()
+            cursor2 = self.connection.cursor()
+            read_query = (
+                "SELECT gonderenno, dersismi FROM talepler WHERE talepsonuc = %s"
+            )
+            cursor.execute(read_query, ("Onaylandı",))
+            results = cursor.fetchall()
+
+            cursor2.execute("SELECT sicilno FROM ogrenciler")
+            results2 = cursor2.fetchall()
+            ogrenciler = [result[0] for result in results2]
+
+            ogrenciler_sonuc = [
+                result[0] for result in results if result[0] in ogrenciler
+            ]
+
+            for ogrenci_sonuc in ogrenciler_sonuc:
+                if ogrenci_sonuc in ogrenciler:
+                    ogrenciler.remove(ogrenci_sonuc)
+            cursor.close()
+            cursor2.close()
+            return ogrenciler
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Boştaki Öğrenciler Gösterilirken Hata ile Karşılaşıldı: ", error)
+
+    def dersTalebiEkraniHoca(self, username):
+        try:
+            cursor = self.connection.cursor()
+            dataAd = []
+            data = []
+            data = self.showFreeStudents()
+            i = 0
+            for i in range(len(data)):
+                read_query = "SELECT ad FROM ogrenciler WHERE sicilno = %s"
+                cursor.execute(read_query, (data[i],))
+                result = cursor.fetchone()
+                dataAd.append(result[0])
+                i += 1
+            cursor.close()
+
+            cursor = self.connection.cursor()
+            dataSoyad = []
+            data2 = self.showFreeStudents()
+            j = 0
+            for j in range(len(data2)):
+                read_query = "SELECT soyad FROM ogrenciler WHERE sicilno = %s"
+                cursor.execute(read_query, (data[j],))
+                result = cursor.fetchone()
+                dataSoyad.append(result[0])
+                j += 1
+            cursor.close()
+
+            cursor = self.connection.cursor()
+            dataGPA = []
+            k = 0
+            for k in range(len(data)):
+                read_query = "SELECT gpa FROM ogrenciler WHERE sicilno = %s"
+                cursor.execute(read_query, (data[k],))
+                result = cursor.fetchone()
+                dataGPA.append(result[0])
+                k += 1
+            cursor.close()
+            listedData = list(zip(data, dataAd, dataSoyad, dataGPA))
+
+            global dersTalebiHocaScreen
+            dersTalebiHocaScreen = Toplevel()
+            dersTalebiHocaScreen.title("Lütfen Öğrencinizi Talep Ediniz!")
+            dersTalebiHocaScreen.geometry("803x800")
+
+            tree = ttk.Treeview(dersTalebiHocaScreen)
+            tree["show"] = "headings"
+
+            style = ttk.Style(dersTalebiHocaScreen)
+            style.theme_use("clam")
+
+            tree["columns"] = (
+                "sicilno",
+                "ad",
+                "soyad",
+                "gpa",
+            )
+            tree.column("sicilno", width=200, minwidth=100, anchor=tk.CENTER)
+            tree.column("ad", width=200, minwidth=100, anchor=tk.CENTER)
+            tree.column("soyad", width=200, minwidth=100, anchor=tk.CENTER)
+            tree.column("gpa", width=200, minwidth=100, anchor=tk.CENTER)
+
+            tree.heading("sicilno", text="Okul Numarası", anchor=tk.CENTER)
+            tree.heading("ad", text="Ad", anchor=tk.CENTER)
+            tree.heading("soyad", text="Soyad", anchor=tk.CENTER)
+            tree.heading("gpa", text="Not Ortalaması", anchor=tk.CENTER)
+
+            i = 0
+            for row in listedData:
+                tree.insert(
+                    "",
+                    i,
+                    text="",
+                    values=(
+                        row[0],
+                        row[1],
+                        row[2],
+                        row[3],
+                    ),
+                )
+                i += 1
+            tree.grid(row=0, columnspan=5)
+
+            Label(dersTalebiHocaScreen, text="Öğrenci Numarası").grid(row=1, column=0)
+            combo = ttk.Combobox(dersTalebiHocaScreen, values=data)
+            combo.grid(row=1, column=1)
+            dersBilgiButton = Button(
+                dersTalebiHocaScreen,
+                text="Bilgi Gör",
+                command=lambda: self.dersBilgiGetir(combo.get()),
+            )
+            dersBilgiButton.grid(row=1, column=2)
+
+            Label(dersTalebiHocaScreen, text="Öğrenci Numarası").grid(row=3, column=0)
+            combo2 = ttk.Combobox(dersTalebiHocaScreen, values=data)
+            combo2.grid(row=3, column=1)
+
+            combo3 = ttk.Combobox(
+                dersTalebiHocaScreen, values=["Araştırma Projesi", "Bitirme Projesi"]
+            )
+            combo3.grid(row=3, column=2)
+            talepButton = Button(
+                dersTalebiHocaScreen,
+                text="Talep Gönder",
+                command=lambda: self.requests(
+                    username, combo2.get(), combo3.get(), "Değerlendirmede"
+                ),
+            )
+            talepButton.grid(row=3, column=3)
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Hata ile Karşılaşıldı: ", error)
+
+    def dersBilgiGetir(self, username):
+        self.connectToDataBase()
+        tree2 = ttk.Treeview(dersTalebiHocaScreen)
+        tree2["show"] = "headings"
+
+        style = ttk.Style(dersTalebiHocaScreen)
+        style.theme_use("clam")
+
+        tree2["columns"] = (
+            "derskodu",
+            "dersadi",
+            "harfnotu",
+        )
+        tree2.column("derskodu", width=268, minwidth=100, anchor=tk.CENTER)
+        tree2.column("dersadi", width=268, minwidth=100, anchor=tk.CENTER)
+        tree2.column("harfnotu", width=268, minwidth=100, anchor=tk.CENTER)
+
+        tree2.heading("derskodu", text="Ders Kodu", anchor=tk.CENTER)
+        tree2.heading("dersadi", text="Ders Adı", anchor=tk.CENTER)
+        tree2.heading("harfnotu", text="Harf Notu", anchor=tk.CENTER)
+
+        try:
+            cursor = self.connection.cursor()
+            read_query = "SELECT derskodu, dersadi, harfnotu FROM ogrencidersler WHERE sicilno = %s "
+            cursor.execute(read_query, (username,))
+            results = cursor.fetchall()
+
+            i = 0
+            for row in results:
+                tree2.insert(
+                    "",
+                    i,
+                    text="",
+                    values=(
+                        row[0],
+                        row[1],
+                        row[2],
+                    ),
+                )
+                i += 1
+                tree2.grid(row=2, columnspan=3)
+                cursor.close()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Alınan Dersler Gösterilirken Hata Oluştu: ", error)
+        self.disconnectToDataBase()
+
+
+# Öğrenci Listele
 
 if __name__ == "__main__":
     connect = ConnectionToDatabase()
-    connect.deleteLessons(25)
+    # print(connect.showFreeStudents())
+    connect.dersBilgiGetir(24)
     connect.disconnectToDataBase()

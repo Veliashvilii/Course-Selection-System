@@ -1394,35 +1394,16 @@ def teacherIlgiAlaniYonet():
     ).grid(row=2, columnspan=2)
 
 
-def dersTalebiEkraniHoca():
-    global dersTalebiHocaScreen
-    dersTalebiHocaScreen = Toplevel()
-    dersTalebiHocaScreen.title("Lütfen Öğrencinizi Talep Ediniz!")
-    dersTalebiHocaScreen.geometry("400x140")
+def hocaTalepEkrani():
+    connect.connectToDataBase()
+    connect.dersTalebiEkraniHoca(username)
+    connect.disconnectToDataBase()
 
-    Label(dersTalebiHocaScreen, text=f"Okul Numaranız {username}").grid(
-        row=0, columnspan=2
-    )
-    Label(dersTalebiHocaScreen, text="Öğrencinizin Okul Numarası ", padx=5).grid(
-        row=1, column=0
-    )
 
-    entryOgrenciNo = Entry(dersTalebiHocaScreen)
-    entryOgrenciNo.grid(row=1, column=1)
-
-    Label(dersTalebiHocaScreen, text="Vermek İstediğiniz Dersi Giriniz ", padx=5).grid(
-        row=2, column=0
-    )
-
-    entryDersAdi = Entry(dersTalebiHocaScreen)
-    entryDersAdi.grid(row=2, column=1)
-
-    dersTalebiButton = Button(
-        dersTalebiHocaScreen,
-        text="ONAYLA",
-        command=lambda: hocaDersTalebi(entryOgrenciNo.get(), entryDersAdi.get()),
-    )
-    dersTalebiButton.grid(row=3, columnspan=2)
+def bostakiOgrenciler():
+    connect.connectToDataBase()
+    print(connect.showFreeStudents())
+    connect.disconnectToDataBase()
 
 
 def hocaDersTalebi(aliciNo, dersAdi):
@@ -1511,7 +1492,7 @@ teacherScreenOgrenciButton = Button(
     borderwidth=0,
     text="Öğrencileri Listele",
     highlightthickness=0,
-    command=lambda: dersTalebiEkraniHoca(),
+    command=lambda: hocaTalepEkrani(),
     relief="flat",
 )
 teacherScreenOgrenciButton.place(x=250.0, y=444.0, width=248.0, height=50.0)

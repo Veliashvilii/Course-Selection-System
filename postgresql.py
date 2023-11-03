@@ -1418,11 +1418,169 @@ class ConnectionToDatabase:
             print("Alınan Dersler Gösterilirken Hata Oluştu: ", error)
         self.disconnectToDataBase()
 
+    # Öğrenci Listele
 
-# Öğrenci Listele
+    def notOrtalamasi(self):
+        try:
+            global notOrtalamasiScreen
+            notOrtalamasiScreen = Toplevel()
+            notOrtalamasiScreen.title("Özel Not Ortalamaları")
+            notOrtalamasiScreen.geometry("807x400")
+
+            Label(notOrtalamasiScreen, text="Okul Numarası:").grid(row=0, column=0)
+            entry = Entry(notOrtalamasiScreen)
+            entry.grid(row=0, column=1)
+            button = Button(
+                notOrtalamasiScreen, text="ARAT", command=lambda: arat(entry.get())
+            ).grid(row=0, column=2)
+
+            def arat(username):
+                self.connectToDataBase()
+                cursor = self.connection.cursor()
+                data_query = "SELECT derskodu FROM ogrencidersler WHERE sicilno = %s"
+                cursor.execute(data_query, (username,))
+                results = cursor.fetchall()
+                dataDersKodu = []
+                i = 0
+                for i in range(len(results)):
+                    dataDersKodu.append(results[i][0])
+                    i += 1
+                cursor.close()
+
+                cursor = self.connection.cursor()
+                data_query = "SELECT harfnotu FROM ogrencidersler WHERE sicilno = %s"
+                cursor.execute(data_query, (username,))
+                results = cursor.fetchall()
+                dataHarfNotu = []
+                j = 0
+                for j in range(len(results)):
+                    dataHarfNotu.append(results[j][0])
+                    j += 1
+                cursor.close()
+
+                cursor = self.connection.cursor()
+                data_query = "SELECT dersadi FROM ogrencidersler WHERE sicilno = %s"
+                cursor.execute(data_query, (username,))
+                results = cursor.fetchall()
+                dataDersAdi = []
+                k = 0
+                for k in range(len(results)):
+                    dataDersAdi.append(results[k][0])
+                    k += 1
+                cursor.close()
+
+                cursor = self.connection.cursor()
+                data_query = "SELECT derskodu, dersadi, harfnotu FROM ogrencidersler WHERE sicilno = %s"
+                cursor.execute(data_query, (username,))
+                results = cursor.fetchall()
+
+                tree2 = ttk.Treeview(notOrtalamasiScreen)
+                tree2["show"] = "headings"
+
+                style = ttk.Style(notOrtalamasiScreen)
+                style.theme_use("clam")
+
+                tree2["columns"] = (
+                    "derskodu",
+                    "dersadi",
+                    "harfnotu",
+                )
+                tree2.column("derskodu", width=268, minwidth=100, anchor=tk.CENTER)
+                tree2.column("dersadi", width=268, minwidth=100, anchor=tk.CENTER)
+                tree2.column("harfnotu", width=268, minwidth=100, anchor=tk.CENTER)
+
+                tree2.heading("derskodu", text="Ders Kodu", anchor=tk.CENTER)
+                tree2.heading("dersadi", text="Ders Adı", anchor=tk.CENTER)
+                tree2.heading("harfnotu", text="Harf Notu", anchor=tk.CENTER)
+                i = 0
+                for row in results:
+                    tree2.insert(
+                        "",
+                        i,
+                        text="",
+                        values=(
+                            row[0],
+                            row[1],
+                            row[2],
+                        ),
+                    )
+                    i += 1
+                    tree2.grid(row=1, columnspan=4)
+                    cursor.close()
+                Label(notOrtalamasiScreen, text="Ortalamaya Ekle").grid(row=2, column=0)
+                combo = ttk.Combobox(notOrtalamasiScreen, values=dataDersAdi)
+                combo.set("Ders Adları")
+                combo.grid(row=2, column=1)
+                dersIsmi = combo.get()
+                combo2 = ttk.Combobox(notOrtalamasiScreen, values=[1, 2, 3, 4])
+                combo2.set("Kat Sayı")
+                combo2.grid(row=2, column=2)
+                dataKatSayi = []
+                dataKatSayiDers = []
+                dataKatSayiHarf = []
+                notOrtalamaEkleButton = Button(
+                    notOrtalamasiScreen, text="EKLE", command=lambda: eklemeMetod()
+                )
+                notOrtalamaEkleButton.grid(row=2, column=3)
+
+                notOrtalamaHesaplaButton = Button(
+                    notOrtalamasiScreen, text="HESAPLA", command=lambda: puanEkranaBas()
+                )
+                notOrtalamaHesaplaButton.grid(row=3, columnspan=4)
+
+                def eklemeMetod():
+                    dataKatSayi.append(combo2.get())
+                    dataKatSayiDers.append(combo.get())
+                    index = dataDersAdi.index(combo.get())
+                    dataKatSayiHarf.append(dataHarfNotu[index])
+
+                def hesaplaMetod():
+                    toplamDers = len(dataKatSayiDers)
+                    i = 0
+                    toplamPuan = 0
+                    for i in range(toplamDers):
+                        sayisalPuan = puanHarfNotu(dataKatSayiHarf[i])
+                        toplamPuan += sayisalPuan * int(dataKatSayi[i])
+                        i += 1
+
+                    toplamPuan /= toplamDers
+                    return toplamPuan
+
+                def puanHarfNotu(harfnotu):
+                    if harfnotu == "AA":
+                        return 4
+                    elif harfnotu == "BA":
+                        return 3.5
+                    elif harfnotu == "BB":
+                        return 3
+                    elif harfnotu == "CB":
+                        return 2.5
+                    elif harfnotu == "CC":
+                        return 2
+                    elif harfnotu == "DC":
+                        return 1.5
+                    elif harfnotu == "DD":
+                        return 1
+                    elif harfnotu == "FD":
+                        return 0.5
+                    elif harfnotu == "FF":
+                        return 0
+                    else:
+                        print("Geçerli Bir Değer Yollanmadı!")
+
+                def puanEkranaBas():
+                    Label(
+                        notOrtalamasiScreen,
+                        text=f"Öğrencinizin Puanı: {hesaplaMetod()}",
+                    ).grid(row=4, columnspan=4)
+
+                self.disconnectToDataBase()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Not Ortalaması Hesaplanırken Hata ile Karşılaşıldı: ", error)
+
 
 if __name__ == "__main__":
     connect = ConnectionToDatabase()
-    # print(connect.showFreeStudents())
-    connect.dersBilgiGetir(24)
+    connect.notOrtalamasi(24)
     connect.disconnectToDataBase()

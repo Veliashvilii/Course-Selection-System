@@ -929,18 +929,22 @@ loginScreenButton13 = Button(
 )
 loginScreenButton13.place(x=1004.0, y=618.0, width=300.0, height=31.0)
 
-loginScreenButton14Image = PhotoImage(
-    file=relative_to_assets_admin("loginScreenButton14.png")
-)
-loginScreenButton14 = Button(
+adminScreenCikisButton = Button(
     admin_frame,
-    image=loginScreenButton14Image,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: print("button_14 clicked"),
+    text="ÇIKIŞ",
+    command=lambda: adminCikis(),
     relief="flat",
 )
-loginScreenButton14.place(x=64.0, y=618.0, width=300.0, height=31.0)
+adminScreenCikisButton.place(x=64.0, y=618.0, width=300.0, height=31.0)
+
+
+def adminCikis():
+    connect.disconnectToDataBase()
+    admin_frame.pack_forget()
+    main_frame.pack(fill="both", expand=True)
+
 
 loginScreenButton15Image = PhotoImage(
     file=relative_to_assets_admin("loginScreenButton15.png")
@@ -1418,6 +1422,12 @@ def readTalepler():
     connect.disconnectToDataBase()
 
 
+def makeGPA():
+    connect.connectToDataBase()
+    connect.notOrtalamasi()
+    connect.disconnectToDataBase()
+
+
 canvasTeacherScreen = Canvas(
     teacher_frame,
     bg="#FFFFFF",
@@ -1502,7 +1512,7 @@ teacherScreenNotButton = Button(
     borderwidth=0,
     text="Not Ortalaması",
     highlightthickness=0,
-    command=lambda: print("Not Ortalaması Yapıcam"),
+    command=lambda: makeGPA(),
     relief="flat",
 )
 teacherScreenNotButton.place(x=868.0, y=184.0, width=248.0, height=50.0)

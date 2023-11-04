@@ -1579,6 +1579,282 @@ class ConnectionToDatabase:
         except (Exception, psycopg2.DatabaseError) as error:
             print("Not Ortalaması Hesaplanırken Hata ile Karşılaşıldı: ", error)
 
+    def manageRequests(self):
+        global manageRequestScreen
+        manageRequestScreen = Toplevel()
+        manageRequestScreen.title("Talepleri Yönetme")
+        manageRequestScreen.geometry("813x325")
+
+        try:
+            cursor = self.connection.cursor()
+            read_query = "SELECT * FROM talepler"
+            cursor.execute(read_query)
+            results = cursor.fetchall()
+            tree2 = ttk.Treeview(manageRequestScreen)
+            tree2["show"] = "headings"
+
+            style = ttk.Style(manageRequestScreen)
+            style.theme_use("clam")
+
+            tree2["columns"] = (
+                "gondermezamani",
+                "talepno",
+                "gonderenno",
+                "alicino",
+                "dersismi",
+                "talepsonuc",
+            )
+            tree2.column("gondermezamani", width=136, minwidth=100, anchor=tk.CENTER)
+            tree2.column("talepno", width=35, minwidth=100, anchor=tk.CENTER)
+            tree2.column("gonderenno", width=35, minwidth=100, anchor=tk.CENTER)
+            tree2.column("alicino", width=35, minwidth=100, anchor=tk.CENTER)
+            tree2.column("dersismi", width=150, minwidth=100, anchor=tk.CENTER)
+            tree2.column("talepsonuc", width=355, minwidth=100, anchor=tk.CENTER)
+
+            tree2.heading("gondermezamani", text="Gönderilme Zamanı", anchor=tk.CENTER)
+            tree2.heading("talepno", text="Talep Numarası", anchor=tk.CENTER)
+            tree2.heading("gonderenno", text="Gönderici No", anchor=tk.CENTER)
+            tree2.heading("alicino", text="Alıcı No", anchor=tk.CENTER)
+            tree2.heading("dersismi", text="Dersin İsmi", anchor=tk.CENTER)
+            tree2.heading("talepsonuc", text="Talep Durumu", anchor=tk.CENTER)
+            i = 0
+            dataTalepNo = []
+            for row in results:
+                tree2.insert(
+                    "",
+                    i,
+                    text="",
+                    values=(
+                        row[0],
+                        row[1],
+                        row[2],
+                        row[3],
+                        row[4],
+                        row[5],
+                    ),
+                )
+                dataTalepNo.append(row[1])
+                i += 1
+            tree2.grid(row=0, columnspan=6)
+            cursor.close()
+
+            Label(manageRequestScreen, text="Talep Onaylama - Reddetme").grid(
+                row=1, column=0
+            )
+            combo = ttk.Combobox(manageRequestScreen, values=dataTalepNo)
+            combo.set("Talep Numarası")
+            combo.grid(row=1, column=1)
+            onayButton = Button(
+                manageRequestScreen,
+                text="ONAYLA",
+                command=lambda: onayMetod(combo.get()),
+            )
+            onayButton.grid(row=1, column=2)
+            RedButton = Button(
+                manageRequestScreen,
+                text="REDDET",
+                command=lambda: reddetMetod(combo.get()),
+            )
+            RedButton.grid(row=1, column=3)
+
+            dataOgrenciler = []
+            cursor = self.connection.cursor()
+            ogrenci_query = "SELECT sicilno FROM ogrenciler"
+            cursor.execute(ogrenci_query)
+            resultsOgrenci = cursor.fetchall()
+
+            k = 0
+            for k in range(len(resultsOgrenci)):
+                dataOgrenciler.append(resultsOgrenci[k])
+            cursor.close()
+
+            dataOgretmenler = []
+            cursor = self.connection.cursor()
+            ogretmen_query = "SELECT sicilno FROM hocalar"
+            cursor.execute(ogretmen_query)
+            resultsOgretmen = cursor.fetchall()
+
+            l = 0
+            for l in range(len(resultsOgretmen)):
+                dataOgretmenler.append(resultsOgretmen[l])
+                l += 1
+            cursor.close()
+
+            Label(manageRequestScreen, text="Öğrenciye Ders Ekle").grid(row=2, column=0)
+            combo1 = ttk.Combobox(manageRequestScreen, values=dataOgrenciler)
+            combo1.set("Öğrenci Numarası")
+            combo1.grid(row=2, column=1, padx=5)
+            combo2 = ttk.Combobox(
+                manageRequestScreen, values=["Araştırma Projesi", "Bitirme Projesi"]
+            )
+            combo2.set("Dersin Adı")
+            combo2.grid(row=2, column=2, padx=5)
+
+            combo3 = ttk.Combobox(manageRequestScreen, values=dataOgretmenler)
+            combo3.set("Öğretmen Numarası")
+            combo3.grid(row=2, column=3, padx=5)
+
+            eklemeButon = Button(
+                manageRequestScreen,
+                text="EKLE",
+                command=lambda: addMetod(combo1.get(), combo2.get(), combo3.get()),
+            ).grid(row=3, columnspan=6)
+
+            def addMetod(ogrencino, dersadi, ogretmenno):
+                self.connectToDataBase()
+                try:
+                    cursor = self.connection.cursor()
+
+                    take_query = "SELECT ad FROM hocalar WHERE sicilno = %s"
+                    cursor.execute(take_query, (ogretmenno,))
+                    results = cursor.fetchone()
+                    cursor.close()
+                    cursor = self.connection.cursor()
+                    take_query = "SELECT soyad FROM hocalar WHERE sicilno = %s"
+                    cursor.execute(take_query, (ogretmenno,))
+                    results2 = cursor.fetchone()
+                    cursor.close()
+                    cursor = self.connection.cursor()
+                    insert_query = "INSERT INTO alinandersler (sicilno, dersadi, ogretmenad, ogretmensoyad) VALUES (%s, %s, %s, %s)"
+                    cursor.execute(
+                        insert_query, (ogrencino, dersadi, results[0], results2[0])
+                    )
+                    self.connection.commit()
+                    cursor.close()
+                    cursor = self.connection.cursor()
+                    kontenjan_query = "UPDATE hocalar SET kontenjan = kontenjan - 1 WHERE sicilno = %s"
+                    cursor.execute(kontenjan_query, (ogretmenno,))
+                    self.connection.commit()
+                    cursor.close()
+                except (Exception, psycopg2.DatabaseError) as error:
+                    print("Ders Eklenirken Hata Oluştu: ", error)
+                self.disconnectToDataBase()
+
+            def onayMetod(talepno):
+                self.connectToDataBase()
+                try:
+                    cursor = self.connection.cursor()
+                    control_query = "SELECT kontenjan FROM hocalar WHERE sicilno = (SELECT alicino FROM talepler WHERE talepno = %s)"
+                    cursor.execute(control_query, (talepno,))
+                    resultKontenjan = cursor.fetchone()
+
+                    global infoScreenAccept2
+                    infoScreenAccept2 = Toplevel()
+
+                    if resultKontenjan and resultKontenjan[0] > 0:
+                        cursor = self.connection.cursor()
+                        accept_query = "UPDATE talepler SET talepsonuc= %s WHERE talepno = %s AND talepsonuc = %s"
+                        cursor.execute(
+                            accept_query, ("Onaylandı", talepno, "Değerlendirmede")
+                        )
+                        self.connection.commit()
+                        cursor.close()
+
+                        reduce_kontenjan_query = "UPDATE hocalar SET kontenjan = kontenjan - 1 WHERE sicilno = (SELECT alicino FROM talepler WHERE talepno = %s)"
+                        cursor = self.connection.cursor()
+                        cursor.execute(reduce_kontenjan_query, (talepno,))
+                        self.connection.commit()
+                        cursor.close()
+
+                        cursor = self.connection.cursor()
+                        read_query = (
+                            "SELECT talepsonuc FROM talepler WHERE talepno = %s"
+                        )
+                        cursor.execute(read_query, (talepno,))
+                        result = cursor.fetchone()
+                        cursor.close()
+
+                        if result and result[0] == "Onaylandı":
+                            infoScreenAccept2.title("Talep Kabul Edildi!")
+                            Label(
+                                infoScreenAccept2,
+                                text="Talebi Başarıyla Kabul Ettiniz!",
+                            ).grid(row=0, column=0)
+                            Button(
+                                infoScreenAccept2,
+                                text="Tamam",
+                                command=lambda: infoScreenAccept2.withdraw(),
+                            ).grid(row=1, column=0)
+                            infoScreenAccept2.deiconify()
+                        else:
+                            infoScreenAccept2.title(
+                                "Talep Kabul Edilirken Hata Oluştu!"
+                            )
+                            Label(
+                                infoScreenAccept2,
+                                text="Lütfen Geçerli Bir Talep Numarası Giriniz!",
+                            ).grid(row=0, column=0)
+                            Button(
+                                infoScreenAccept2,
+                                text="Tamam",
+                                command=lambda: infoScreenAccept2.withdraw(),
+                            ).grid(row=1, column=0)
+                            infoScreenAccept2.deiconify()
+                    else:
+                        infoScreenAccept2.title("Kontenjan Yetersiz!")
+                        Label(
+                            infoScreenAccept2,
+                            text="Kontenjanınız Dolu! Lütfen Yöneticiniz ile İletişime Geçiniz!",
+                        ).grid(row=0, column=0)
+                        Button(
+                            infoScreenAccept2,
+                            text="Tamam",
+                            command=lambda: infoScreenAccept2.withdraw(),
+                        ).grid(row=1, column=0)
+                        infoScreenAccept2.deiconify()
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    print("Talep Kabul Edilirken Hata ile Karşılaşıldı: ", error)
+                self.disconnectToDataBase()
+
+            def reddetMetod(talepno):
+                self.connectToDataBase()
+                try:
+                    cursor = self.connection.cursor()
+                    reject_query = "UPDATE talepler SET talepsonuc = %s WHERE talepno = %s AND talepsonuc = %s"
+                    cursor.execute(
+                        reject_query, ("Reddedildi", talepno, "Değerlendirmede")
+                    )
+                    self.connection.commit()
+                    cursor.close()
+
+                    cursor = self.connection.cursor()
+                    read_query = "SELECT talepsonuc FROM talepler WHERE talepno = %s"
+                    cursor.execute(read_query, (talepno,))
+                    result = cursor.fetchone()
+
+                    global infoScreenReject
+                    infoScreenReject = Toplevel()
+                    if result and result[0] == "Reddedildi":
+                        infoScreenReject.title("Talep Reddedildi!")
+                        Label(
+                            infoScreenReject, text="Talebi Başarıyla Reddettiniz!"
+                        ).grid(row=0, column=0)
+                        Button(
+                            infoScreenReject,
+                            text="Tamam",
+                            command=lambda: infoScreenReject.withdraw(),
+                        ).grid(row=1, column=0)
+                        infoScreenReject.deiconify()
+                    else:
+                        infoScreenReject.title("Reddedilirken Hata Oluştu!")
+                        Label(
+                            infoScreenReject,
+                            text="Lütfen Geçerli Bir Talep Numarası Giriniz!",
+                        ).grid(row=0, column=0)
+                        Button(
+                            infoScreenReject,
+                            text="Tamam",
+                            command=lambda: infoScreenReject.withdraw(),
+                        ).grid(row=1, column=0)
+                        infoScreenReject.deiconify()
+                except (Exception, psycopg2.DatabaseError) as error:
+                    print("Talep Reddedilirken Hata ile Karşılaşıldı: ", error)
+                self.disconnectToDataBase()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Talepler Yönetilirken Hata İle Karşılaşıldı: ", error)
+
 
 if __name__ == "__main__":
     connect = ConnectionToDatabase()

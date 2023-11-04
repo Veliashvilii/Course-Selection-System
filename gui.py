@@ -5,12 +5,12 @@ from tkinter import filedialog
 
 OUTPUT_PATH_LOGIN = Path(__file__).parent
 ASSETS_PATH_LOGIN = OUTPUT_PATH_LOGIN / Path(
-    r"/Users/veliashvili/Desktop/yazlab1.3/assetsLoginPanel/frame0"
+    r"/Users/veliashvili/Desktop/Sooon Hali/Course-Selection-System/assetsLoginPanel/frame0"
 )
 
 OUTPUT_PATH_ADMIN = Path(__file__).parent
 ASSETS_PATH_ADMIN = OUTPUT_PATH_ADMIN / Path(
-    r"/Users/veliashvili/Desktop/yazlab1.3/assetsAdminPanel/frame0"
+    r"/Users/veliashvili/Desktop/Sooon Hali/Course-Selection-System/assetsAdminPanel/frame0"
 )
 
 OUTPUT_PATH = Path(__file__).parent
@@ -18,12 +18,12 @@ ASSETS_PATH = OUTPUT_PATH / Path(r"/Users/veliashvili/Desktop/yazlab1.3/assets/f
 
 OUTPUT_PATH_STUDENT = Path(__file__).parent
 ASSETS_PATH_STUDENT = OUTPUT_PATH_STUDENT / Path(
-    r"/Users/veliashvili/Desktop/yazlab1.3/studentScreenAssets/frame0"
+    r"/Users/veliashvili/Desktop/Sooon Hali/Course-Selection-System/assets/frame0"
 )
 
 OUTPUT_PATH_TEACHER = Path(__file__).parent
 ASSETS_PATH_TEACHER = OUTPUT_PATH_TEACHER / Path(
-    r"/Users/veliashvili/Desktop/yazlab1.3/assetsTeacher/frame0"
+    r"/Users/veliashvili/Desktop/Sooon Hali/Course-Selection-System/assetsTeacher/frame0"
 )
 
 # SQL connect item
@@ -903,18 +903,22 @@ adminScreenButtonHocaBilgileriAl = Button(
 )
 adminScreenButtonHocaBilgileriAl.place(x=532.0, y=536.0, width=170.0, height=31.0)
 
-loginScreenButton12Image = PhotoImage(
-    file=relative_to_assets_admin("loginScreenButton12.png")
-)
-loginScreenButton12 = Button(
+adminScreenTalepButton = Button(
     admin_frame,
-    image=loginScreenButton12Image,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: print("button_12 clicked"),
+    text="Talepleri Yönet",
+    command=lambda: showRequests(),
     relief="flat",
 )
-loginScreenButton12.place(x=534.0, y=618.0, width=300.0, height=31.0)
+adminScreenTalepButton.place(x=534.0, y=618.0, width=300.0, height=31.0)
+
+
+def showRequests():
+    connect.connectToDataBase()
+    connect.manageRequests()
+    connect.disconnectToDataBase()
+
 
 loginScreenButton13Image = PhotoImage(
     file=relative_to_assets_admin("loginScreenButton13.png")

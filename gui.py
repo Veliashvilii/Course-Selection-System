@@ -865,18 +865,22 @@ loginScreenButton8 = Button(
 )
 loginScreenButton8.place(x=428.0, y=376.0, width=200.0, height=31.0)
 
-loginScreenButton9Image = PhotoImage(
-    file=relative_to_assets_admin("loginScreenButton9.png")
-)
-loginScreenButton9 = Button(
+adminScreenRandomAtaButton = Button(
     admin_frame,
-    image=loginScreenButton9Image,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: print("button_9 clicked"),
+    text="Random Ata",
+    command=lambda: randomAta(),
     relief="flat",
 )
-loginScreenButton9.place(x=163.0, y=448.0, width=170.0, height=31.0)
+adminScreenRandomAtaButton.place(x=163.0, y=448.0, width=170.0, height=31.0)
+
+
+def randomAta():
+    connect.connectToDataBase()
+    connect.randomAtama()
+    connect.disconnectToDataBase()
+
 
 adminScreenButton10Image = PhotoImage(
     file=relative_to_assets_admin("adminScreenButton10.png")

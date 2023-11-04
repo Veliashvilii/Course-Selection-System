@@ -1968,7 +1968,80 @@ class ConnectionToDatabase:
             print("Rastgele Öğrenci Oluşturulurken Hata Oluştu: ", error)
         self.disconnectToDataBase()
 
+    def randomAtama(self):
+        ogrenciler = self.showFreeStudents()
+        ogretmenlerSicilNo = []
+        ogretmenlerAd = []
+        ogretmenlerSoyad = []
+        dersler = ["Araştırma Projesi", "Bitirme Projesi"]
+        try:
+            cursor = self.connection.cursor()
+            data_query = "SELECT sicilno FROM hocalar WHERE kontenjan > 0"
+            cursor.execute(data_query)
+            results = cursor.fetchall()
+            k = 0
+            for k in range(len(results)):
+                ogretmenlerSicilNo.append(results[k])
+                k += 1
+            cursor.close()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Öğretmenler Çekilirken Hata Oluştu", error)
+
+        i = 0
+        secilenOgretmenler = []
+        for i in range(len(ogrenciler)):
+            randomS = random.randint(0, len(ogretmenlerSicilNo) - 1)
+            secilenOgretmenler.append(ogretmenlerSicilNo[randomS])
+            i += 1
+
+        try:
+            cursor = self.connection.cursor()
+            query = "SELECT ad FROM hocalar WHERE sicilno= %s"
+            query1 = "SELECT soyad FROM hocalar WHERE sicilno= %s"
+            i = 0
+            for i in range(len(secilenOgretmenler)):
+                cursor.execute(query, (secilenOgretmenler[i],))
+                result = cursor.fetchone()
+                ogretmenlerAd.append(result[0])
+                i += 1
+            cursor.close()
+
+            cursor = self.connection.cursor()
+            for i in range(len(secilenOgretmenler)):
+                cursor.execute(query1, (secilenOgretmenler[i],))
+                result = cursor.fetchone()
+                ogretmenlerSoyad.append(result[0])
+                i += 1
+            cursor.close()
+        except (ValueError, psycopg2.DatabaseError) as error:
+            print("Öğretmenler Atanırken Hata Oluştu: ", error)
+
+        try:
+            cursor = self.connection.cursor()
+            insert_query = "INSERT INTO alinandersler (sicilno, dersadi, ogretmenad, ogretmensoyad) VALUES (%s, %s, %s, %s)"
+            i = 0
+            for i in range(len(ogrenciler)):
+                j = 0
+                for j in range(2):
+                    cursor.execute(
+                        insert_query,
+                        (
+                            ogrenciler[i],
+                            dersler[j],
+                            ogretmenlerAd[i],
+                            ogretmenlerSoyad[i],
+                        ),
+                    )
+                    j += 1
+                i += 1
+            self.connection.commit()
+            cursor.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Öğretmen Atanırken Hata Oluştu: ", error)
+
 
 if __name__ == "__main__":
     connect = ConnectionToDatabase()
+    connect.randomAtama()
     connect.disconnectToDataBase()

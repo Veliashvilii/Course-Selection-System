@@ -1,5 +1,6 @@
 from pathlib import Path
 from tkinter import *
+from tkinter import ttk
 import postgresql
 from tkinter import filedialog
 
@@ -920,18 +921,43 @@ def showRequests():
     connect.disconnectToDataBase()
 
 
-loginScreenButton13Image = PhotoImage(
-    file=relative_to_assets_admin("loginScreenButton13.png")
-)
-loginScreenButton13 = Button(
+randomOgrenciButton = Button(
     admin_frame,
-    image=loginScreenButton13Image,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: print("button_13 clicked"),
+    text="Random Öğrenci Oluştur",
+    command=lambda: randomOgrenciIslem(),
     relief="flat",
 )
-loginScreenButton13.place(x=1004.0, y=618.0, width=300.0, height=31.0)
+randomOgrenciButton.place(x=1004.0, y=618.0, width=300.0, height=31.0)
+
+
+def randomOgrenciIslem():
+    global randomOgrenciScreen
+    randomOgrenciScreen = Toplevel()
+    randomOgrenciScreen.title("Rastgele Öğrenci Oluşturma")
+
+    dataSayi = []
+    i = 0
+    for i in range(50):
+        dataSayi.append(i + 1)
+        i += 1
+
+    combo = ttk.Combobox(randomOgrenciScreen, values=dataSayi)
+    combo.set("Öğrenci Sayısı")
+    combo.grid(row=0, column=0, columnspan=1)
+    Buton = Button(
+        randomOgrenciScreen,
+        text="OLUŞTUR",
+        command=lambda: makeStudent(combo.get()),
+    ).grid(row=1, column=0, columnspan=1)
+
+
+def makeStudent(sayi):
+    connect.connectToDataBase()
+    connect.randomStudentGenerator(sayi)
+    connect.disconnectToDataBase()
+
 
 adminScreenCikisButton = Button(
     admin_frame,

@@ -4,6 +4,7 @@ import tkinter as tk
 from tkinter import ttk, Toplevel, Label, Entry, Button
 from PyPDF2 import PdfReader
 import re
+import random
 
 
 class ConnectionToDatabase:
@@ -1855,8 +1856,119 @@ class ConnectionToDatabase:
         except (Exception, psycopg2.DatabaseError) as error:
             print("Talepler Yönetilirken Hata İle Karşılaşıldı: ", error)
 
+    def randomStudentGenerator(self, sayi):
+        sayi = int(sayi)
+        self.connectToDataBase()
+        try:
+            i = 0
+            ogrenciAd = []
+            ogrenciSoyad = []
+            ogrenciSifre = []
+            ogrenciGPA = []
+            sicilNolar = []
+            for i in range(sayi):
+                ogrenciAd.append(f"ad{i}")
+                ogrenciSoyad.append(f"soyad{i}")
+                ogrenciSifre.append(f"sifre{i}")
+                ortalama = i % 4
+                ogrenciGPA.append(ortalama)
+                i += 1
+            cursor = self.connection.cursor()
+            insert_query = "INSERT INTO kullanicilar (ad, soyad, sifre, tur) VALUES (%s, %s, %s, %s)"
+            for j in range(sayi):
+                cursor.execute(
+                    insert_query,
+                    (ogrenciAd[j], ogrenciSoyad[j], ogrenciSifre[j], "ogrenci"),
+                )
+                self.connection.commit()
+
+            read_query = "SELECT sicilno FROM kullanicilar WHERE ad = %s AND soyad = %s AND sifre = %s AND tur = %s "
+            for k in range(sayi):
+                cursor.execute(
+                    read_query,
+                    (ogrenciAd[k], ogrenciSoyad[k], ogrenciSifre[k], "ogrenci"),
+                )
+                result = cursor.fetchone()
+                sicilNolar.append(result[0])
+
+            cursor.close()
+
+            cursor = self.connection.cursor()
+            insert_query = "INSERT INTO ogrenciler (sicilno, ad, soyad, gpa, aldigiderssayisi) VALUES (%s, %s, %s, %s, %s)"
+            for m in range(sayi):
+                cursor.execute(
+                    insert_query,
+                    (sicilNolar[m], ogrenciAd[m], ogrenciSoyad[m], ogrenciGPA[m], 0),
+                )
+                self.connection.commit()
+
+            cursor.close()
+
+            cursor = self.connection.cursor()
+            read_query = "SELECT derskodu, dersadi, harfnotu FROM ogrencidersler WHERE sicilno = 12"
+            cursor.execute(read_query)
+            results = cursor.fetchall()
+
+            row1 = 0
+            dersKodlari = []
+            dersAdlari = []
+            harfNotlari = []
+            for row1 in range(len(results)):
+                dersKodlari.append(results[row1][0])
+                dersAdlari.append(results[row1][1])
+                row1 += 1
+
+            row1 = 0
+            for row1 in range(len(dersKodlari)):
+                randomS = random.randint(1, 9)
+                if randomS == 1:
+                    harfNotlari.append("AA")
+                elif randomS == 2:
+                    harfNotlari.append("BA")
+                elif randomS == 3:
+                    harfNotlari.append("BB")
+                elif randomS == 4:
+                    harfNotlari.append("CB")
+                elif randomS == 5:
+                    harfNotlari.append("CC")
+                elif randomS == 6:
+                    harfNotlari.append("DC")
+                elif randomS == 7:
+                    harfNotlari.append("DD")
+                elif randomS == 8:
+                    harfNotlari.append("FD")
+                elif randomS == 9:
+                    harfNotlari.append("FF")
+                else:
+                    print("Random Yapılamadı!")
+                row1 += 1
+            cursor.close()
+
+            cursor = self.connection.cursor()
+            insert_query = "INSERT INTO ogrencidersler (sicilno, derskodu, dersadi, harfnotu) VALUES (%s, %s, %s, %s)"
+            s = 0
+            t = 0
+            for t in range(sayi):
+                for s in range(len(dersKodlari)):
+                    cursor.execute(
+                        insert_query,
+                        (
+                            sicilNolar[t],
+                            dersKodlari[s],
+                            dersAdlari[s],
+                            harfNotlari[s],
+                        ),
+                    )
+                    s += 1
+                t += 1
+            self.connection.commit()
+            cursor.close()
+
+        except ValueError as error:
+            print("Rastgele Öğrenci Oluşturulurken Hata Oluştu: ", error)
+        self.disconnectToDataBase()
+
 
 if __name__ == "__main__":
     connect = ConnectionToDatabase()
-    connect.notOrtalamasi(24)
     connect.disconnectToDataBase()

@@ -740,53 +740,41 @@ entryAdminScreenOgrenciDersSayi = Entry(
 )
 entryAdminScreenOgrenciDersSayi.place(x=988.0, y=267.0, width=150.0, height=29.0)
 
-AdminScreenButton1Image = PhotoImage(
-    file=relative_to_assets_admin("adminScreenButton1.png")
-)
 AdminScreenButton1 = Button(
     admin_frame,
-    image=AdminScreenButton1Image,
     borderwidth=0,
     highlightthickness=0,
+    text="EKLE",
     command=lambda: hocaEkle(),
     relief="flat",
 )
 AdminScreenButton1.place(x=1182.0, y=193.0, width=150.0, height=31.0)
 
-adminScreenButton2Image = PhotoImage(
-    file=relative_to_assets_admin("adminScreenButtonHocaSayisi.png")
-)
 adminScreenButtonHocaSayisi = Button(
     admin_frame,
-    image=adminScreenButton2Image,
     borderwidth=0,
     highlightthickness=0,
+    text="ONAYLA",
     command=lambda: kacHoca(entryAdminScreenKacHoca.get()),
     relief="flat",
 )
 adminScreenButtonHocaSayisi.place(x=1134.0, y=323.0, width=200.0, height=31.0)
 
-adminScreenButton3Image = PhotoImage(
-    file=relative_to_assets_admin("adminScreenButton3.png")
-)
 adminScreenButtonKullaniciSil = Button(
     admin_frame,
-    image=adminScreenButton3Image,
     borderwidth=0,
     highlightthickness=0,
+    text="SİL",
     command=lambda: kullaniciSil(),
     relief="flat",
 )
 adminScreenButtonKullaniciSil.place(x=1132.0, y=375.0, width=200.0, height=31.0)
 
-adminScreenButton4Image = PhotoImage(
-    file=relative_to_assets_admin("adminScreenButton4.png")
-)
 adminScreenButtonKullaniciBilgiGuncelle = Button(
     admin_frame,
-    image=adminScreenButton4Image,
     borderwidth=0,
     highlightthickness=0,
+    text="GÜNCELLE",
     command=lambda: kullaniciBilgiGuncelle(),
     relief="flat",
 )
@@ -794,48 +782,35 @@ adminScreenButtonKullaniciBilgiGuncelle.place(
     x=1133.0, y=536.0, width=200.0, height=31.0
 )
 
-loginScreenButton5Image = PhotoImage(
-    file=relative_to_assets_admin("loginScreenButton5.png")
-)
 loginScreenButton5 = Button(
     admin_frame,
-    image=loginScreenButton5Image,
     borderwidth=0,
     highlightthickness=0,
+    text="AKTİF",
     command=lambda: print("button_5 clicked"),
     relief="flat",
 )
 loginScreenButton5.place(x=968.0, y=448.0, width=170.0, height=31.0)
 
-loginScreenButton6Image = PhotoImage(
-    file=relative_to_assets_admin("loginScreenButton6.png")
-)
 loginScreenButton6 = Button(
     admin_frame,
-    image=loginScreenButton6Image,
     borderwidth=0,
     highlightthickness=0,
+    text="PASİF",
     command=lambda: print("button_6 clicked"),
     relief="flat",
 )
 loginScreenButton6.place(x=1164.0, y=448.0, width=170.0, height=31.0)
 
-loginScreenButton7Image = PhotoImage(
-    file=relative_to_assets_admin("loginScreenButton7.png")
-)
 loginScreenButton7 = Button(
     admin_frame,
-    image=loginScreenButton7Image,
     borderwidth=0,
     highlightthickness=0,
+    text="ONAYLA",
     command=lambda: print("button_7 clicked"),
     relief="flat",
 )
 loginScreenButton7.place(x=428.0, y=319.0, width=200.0, height=31.0)
-
-loginScreenButton8Image = PhotoImage(
-    file=relative_to_assets_admin("loginScreenButton8.png")
-)
 
 
 def mesajKarakterSayisiKisitla(mesajKarakterSayisi):
@@ -857,9 +832,9 @@ def mesajKarakterSayisiKisitla(mesajKarakterSayisi):
 
 loginScreenButton8 = Button(
     admin_frame,
-    image=loginScreenButton8Image,
     borderwidth=0,
     highlightthickness=0,
+    text="ONAYLA",
     command=lambda: mesajKarakterSayisiKisitla(entryAdminScreenMesajKarakter.get()),
     relief="flat",
 )
@@ -882,27 +857,21 @@ def randomAta():
     connect.disconnectToDataBase()
 
 
-adminScreenButton10Image = PhotoImage(
-    file=relative_to_assets_admin("adminScreenButton10.png")
-)
 adminScreenButtonOgrenciBilgiAl = Button(
     admin_frame,
-    image=adminScreenButton10Image,
     borderwidth=0,
     highlightthickness=0,
+    text="GETİR",
     command=lambda: ogrenciBilgileriAl(),
     relief="flat",
 )
 adminScreenButtonOgrenciBilgiAl.place(x=171.0, y=536.0, width=170.0, height=31.0)
 
-adminScreenButton11Image = PhotoImage(
-    file=relative_to_assets_admin("adminScreenButton11.png")
-)
 adminScreenButtonHocaBilgileriAl = Button(
     admin_frame,
-    image=adminScreenButton11Image,
     borderwidth=0,
     highlightthickness=0,
+    text="GETİR",
     command=lambda: ogretmenBilgileriAl(),
     relief="flat",
 )
@@ -980,40 +949,31 @@ def adminCikis():
     main_frame.pack(fill="both", expand=True)
 
 
-loginScreenButton15Image = PhotoImage(
-    file=relative_to_assets_admin("loginScreenButton15.png")
-)
 loginScreenButton15 = Button(
     admin_frame,
-    image=loginScreenButton15Image,
     borderwidth=0,
     highlightthickness=0,
+    text="DERS",
     command=lambda: print("button_15 clicked"),
     relief="flat",
 )
 loginScreenButton15.place(x=565.0, y=448.0, width=170.0, height=31.0)
 
-loginScreenButton16Image = PhotoImage(
-    file=relative_to_assets_admin("loginScreenButton16.png")
-)
 loginScreenButton16 = Button(
     admin_frame,
-    image=loginScreenButton16Image,
     borderwidth=0,
     highlightthickness=0,
+    text="GPA",
     command=lambda: print("button_16 clicked"),
     relief="flat",
 )
 loginScreenButton16.place(x=370.0, y=448.0, width=170.0, height=31.0)
 
-adminScreenButton17Image = PhotoImage(
-    file=relative_to_assets_admin("adminScreenButton17.png")
-)
 adminScreenButtonOgrenciEkle = Button(
     admin_frame,
-    image=adminScreenButton17Image,
     borderwidth=0,
     highlightthickness=0,
+    text="EKLE",
     command=lambda: ogrenciEke(),
     relief="flat",
 )

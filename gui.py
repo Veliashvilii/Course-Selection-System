@@ -35,6 +35,8 @@ global mesajKarakterSayisi
 mesajKarakterSayisiGuncel = 25
 global farkliHocaSayisi
 farkliHocaSayisi = 1
+global login1
+login1 = 0
 
 
 def relative_to_assets_login(path: str) -> Path:
@@ -57,8 +59,12 @@ def relative_to_assets_teacher(path: str) -> Path:
     return ASSETS_PATH_TEACHER / Path(path)
 
 
+transcript_uploaded = False
+
+
 def login():
     global username
+    global transcript_uploaded
     username = entryLoginScreenUsername.get()
     password = entryLoginScreenPassword.get()
     connect.connectToDataBase()
@@ -74,66 +80,71 @@ def login():
             teacher_frame.pack(fill="both", expand=True)
             connect.disconnectToDataBase()
         elif user_type == "ogrenci":
-            global transkriptScreen
-            transkriptScreen = Toplevel()
-            transkriptScreen.title("Transkriptinizi Lütfen Yükleyiniz!")
-            transkriptScreen.geometry("600x400")
-            transkriptScreen.resizable(False, False)
-            canvasTrans = Canvas(
-                transkriptScreen,
-                bg="#F1EEEE",
-                height=400,
-                width=600,
-                bd=0,
-                highlightthickness=0,
-                relief="ridge",
-            )
+            if not transcript_uploaded:
+                global transkriptScreen
+                transkriptScreen = Toplevel()
+                transkriptScreen.title("Transkriptinizi Lütfen Yükleyiniz!")
+                transkriptScreen.geometry("600x400")
+                transkriptScreen.resizable(False, False)
+                canvasTrans = Canvas(
+                    transkriptScreen,
+                    bg="#F1EEEE",
+                    height=400,
+                    width=600,
+                    bd=0,
+                    highlightthickness=0,
+                    relief="ridge",
+                )
 
-            canvasTrans.place(x=0, y=0)
-            canvasTrans.create_rectangle(
-                0.0, 0.0, 600.0, 100.0, fill="#00A571", outline=""
-            )
+                canvasTrans.place(x=0, y=0)
+                canvasTrans.create_rectangle(
+                    0.0, 0.0, 600.0, 100.0, fill="#00A571", outline=""
+                )
 
-            image_image_1 = PhotoImage(file=relative_to_assets("image_1.png"))
-            image_1 = canvasTrans.create_image(75.0, 50.0, image=image_image_1)
+                image_image_1 = PhotoImage(file=relative_to_assets("image_1.png"))
+                image_1 = canvasTrans.create_image(75.0, 50.0, image=image_image_1)
 
-            canvasTrans.create_text(
-                170.0,
-                41.0,
-                anchor="nw",
-                text="LÜTFEN TRANSKRİPTİNİZİ YÜKLEYİNİZ!",
-                fill="#FFFFFF",
-                font=("Inter", 20 * -1),
-            )
+                canvasTrans.create_text(
+                    170.0,
+                    41.0,
+                    anchor="nw",
+                    text="LÜTFEN TRANSKRİPTİNİZİ YÜKLEYİNİZ!",
+                    fill="#FFFFFF",
+                    font=("Inter", 20 * -1),
+                )
 
-            canvasTrans.create_text(
-                117.0,
-                201.0,
-                anchor="nw",
-                text="Dosya Seçiniz",
-                fill="#000000",
-                font=("Inter", 20 * -1),
-            )
+                canvasTrans.create_text(
+                    117.0,
+                    201.0,
+                    anchor="nw",
+                    text="Dosya Seçiniz",
+                    fill="#000000",
+                    font=("Inter", 20 * -1),
+                )
 
-            button_1 = Button(
-                transkriptScreen,
-                borderwidth=0,
-                text="SEÇ",
-                highlightthickness=0,
-                command=lambda: chooseFile(username),
-                relief="flat",
-            )
-            button_1.place(x=329.0, y=200.0, width=148.0, height=27.0)
+                button_1 = Button(
+                    transkriptScreen,
+                    borderwidth=0,
+                    text="SEÇ",
+                    highlightthickness=0,
+                    command=lambda: chooseFile(username),
+                    relief="flat",
+                )
+                button_1.place(x=329.0, y=200.0, width=148.0, height=27.0)
 
-            canvasTrans.create_text(
-                97.0,
-                272.0,
-                anchor="nw",
-                text="Transkriptinizi Lütfen PDF Formatında Yükleyiniz!",
-                fill="#000000",
-                font=("Inter", 15 * -1),
-            )
-            transkriptScreen.deiconify()
+                canvasTrans.create_text(
+                    97.0,
+                    272.0,
+                    anchor="nw",
+                    text="Transkriptinizi Lütfen PDF Formatında Yükleyiniz!",
+                    fill="#000000",
+                    font=("Inter", 15 * -1),
+                )
+                transkriptScreen.deiconify()
+            else:
+                main_frame.pack_forget()
+                student_frame.pack(fill="both", expand=True)
+
     else:
         global errorScreen
         errorScreen = Toplevel()
@@ -147,11 +158,13 @@ def login():
 
 
 def chooseFile(username):
+    global transcript_uploaded
     filePath = ""
     filePath = filedialog.askopenfilename()
 
     if filePath != "":
         connect.insertTranscript(username, filePath)
+        transcript_uploaded = True
         transkriptScreen.withdraw()
         main_frame.pack_forget()
         student_frame.pack(fill="both", expand=True)

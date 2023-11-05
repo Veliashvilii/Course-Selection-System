@@ -429,18 +429,25 @@ class ConnectionToDatabase:
 
     def deleteStudent(self, sicilNo):
         try:
+            delete_query3 = "DELETE FROM ogrencidersler WHERE sicilNo = %s"
+            cursor = self.connection.cursor()
+            cursor.execute(delete_query3, (sicilNo,))
+            self.connection.commit()
+            cursor.close()
             cursor = self.connection.cursor()
             delete_query = "DELETE FROM ogrenciler WHERE sicilNo = %s"
             cursor.execute(delete_query, (sicilNo,))
             self.connection.commit()
+            cursor.close()
             delete_query2 = "DELETE FROM kullanicilar WHERE sicilNo = %s"
+            cursor = self.connection.cursor()
             cursor.execute(delete_query2, (sicilNo,))
             self.connection.commit()
             cursor.close()
             print(
                 f"Kullanıcı {sicilNo} kullanıcılar ve ogrenciler tablosundan başarıyla silindi!"
             )
-        except (Exception, psycopg2.DatabaseError) as error:
+        except (ValueError, psycopg2.DatabaseError) as error:
             print(
                 f"Kullanıcı {sicilNo} kullanıcılar ve ogrenciler tablosundan silinirken bir hata oluştu!",
                 error,
